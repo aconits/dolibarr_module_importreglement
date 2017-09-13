@@ -6,159 +6,104 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 dol_include_once('/importpayment/class/importpayment.class.php');
 dol_include_once('/importpayment/lib/importpayment.lib.php');
 
-if(empty($user->rights->importpayment->read)) accessforbidden();
+if(empty($user->rights->facture->paiement) || empty($user->rights->importpayment->import)) accessforbidden();
 
 $langs->load('importpayment@importpayment');
-
+$langs->load('bills');
 $action = GETPOST('action');
-$id = GETPOST('id', 'int');
-$ref = GETPOST('ref');
 
-$mode = 'view';
-if (empty($user->rights->importpayment->write)) $mode = 'view'; // Force 'view' mode if can't edit object
-else if ($action == 'create' || $action == 'edit') $mode = 'edit';
-
-$PDOdb = new TPDOdb;
 $object = new TImportPayment;
-
-if (!empty($id)) $object->load($PDOdb, $id);
-elseif (!empty($ref)) $object->loadBy($PDOdb, $ref, 'ref');
 
 $hookmanager->initHooks(array('importpaymentcard', 'globalcard'));
 
 /*
  * Actions
  */
+ 
 
-$parameters = array('id' => $id, 'ref' => $ref, 'mode' => $mode);
+$parameters = array();
 $reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some
 if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
-// Si vide alors le comportement n'est pas remplacé
-if (empty($reshook))
-{
-	$error = 0;
-	switch ($action) {
-		case 'save':
-			$object->set_values($_REQUEST); // Set standard attributes
-			
-//			$object->date_other = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
 
-			// Check parameters
-//			if (empty($object->date_other))
-//			{
-//				$error++;
-//				setEventMessages($langs->trans('warning_date_must_be_fill'), array(), 'warnings');
-//			}
+$error = 0;
+switch ($action) {
+	case 'import':
+		
 			
-			// ... 
-			
-			if ($error > 0)
-			{
-				$mode = 'edit';
-				break;
-			}
-			
-			$object->save($PDOdb, empty($object->ref));
-			
-			header('Location: '.dol_buildpath('/importpayment/card.php', 1).'?id='.$object->getId());
-			exit;
-			
-			break;
-		case 'confirm_clone':
-			$object->cloneObject($PDOdb);
-			
-			header('Location: '.dol_buildpath('/importpayment/card.php', 1).'?id='.$object->getId());
-			exit;
-			break;
-		case 'modif':
-			if (!empty($user->rights->importpayment->write)) $object->setDraft($PDOdb);
-				
-			break;
-		case 'confirm_validate':
-			if (!empty($user->rights->importpayment->write)) $object->setValid($PDOdb);
-			
-			header('Location: '.dol_buildpath('/importpayment/card.php', 1).'?id='.$object->getId());
-			exit;
-			break;
-		case 'confirm_delete':
-			if (!empty($user->rights->importpayment->write)) $object->delete($PDOdb);
-			
-			header('Location: '.dol_buildpath('/importpayment/list.php', 1));
-			exit;
-			break;
-		// link from llx_element_element
-		case 'dellink':
-			$object->generic->deleteObjectLinked(null, '', null, '', GETPOST('dellinkid'));
-			header('Location: '.dol_buildpath('/importpayment/card.php', 1).'?id='.$object->getId());
-			exit;
-			break;
-	}
+		break;
+	case 'confirm_import':
+		
+		header('Location: '.dol_buildpath('/importpayment/card.php', 1));
+		exit;
+		break;
+	
+	default:
+		_fiche($object, $action);
+		break;
 }
+
 
 
 /**
  * View
  */
-
-$title=$langs->trans("ImportPayment");
-llxHeader('',$title);
-
-if ($action == 'create' && $mode == 'edit')
+function _fiche(&$object, $action)
 {
-	load_fiche_titre($langs->trans("NewImportPayment"));
-	dol_fiche_head();
-}
-else
-{
+	global $db,$langs,$conf,$user;
+	
+	$title=$langs->trans("ImportPayment");
+	llxHeader('',$title);
+
 	$head = importpayment_prepare_head($object);
 	$picto = 'generic';
 	dol_fiche_head($head, 'card', $langs->trans("ImportPayment"), 0, $picto);
+
+	$formcore = new TFormCore;
+	$formcore->Set_typeaff('edit');
+	
+	$form = new Form($db);
+
+	$formquestion['text'] = '<textarea></textarea>';
+	$formconfirm = getFormConfirm($form, $object, $action, $formquestion);
+	if (!empty($formconfirm)) echo $formconfirm;
+
+	$TBS=new TTemplateTBS();
+	$TBS->TBS->protect=false;
+	$TBS->TBS->noerr=true;
+
+	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment');
+
+	$step = GETPOST('step', 'int');
+	if (empty($step)) $step = 1;
+	
+	ob_start();
+	$form->select_types_paiements('', 'fk_c_paiement');
+	$selectPaymentMode = ob_get_clean();
+	
+	ob_start();
+	$form->select_comptes('', 'fk_bank_account');
+	$selectAccountToCredit = ob_get_clean();
+	
+	print $TBS->render('tpl/card.tpl.php'
+		,array() // Block
+		,array(
+			'object'=>$object
+			,'view' => array(
+				'action' => 'save'
+				,'step' => $step
+				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
+				,'showInputFile' => $formcore->fichier('', 'paymentfile', '', $conf->global->MAIN_UPLOAD_DOC)
+				,'showInputPaymentDate' => $form->select_date('', 'p', 0, 0, 0, '', 1, 1, 1)
+				,'showInputPaymentMode' => $selectPaymentMode
+				,'showInputAccountToCredit' => $selectAccountToCredit
+			)
+			,'langs' => $langs
+		)
+	);
+
+	echo $formcore->end_form();
+
+	llxFooter();
+	$db->close();
 }
-
-$formcore = new TFormCore;
-$formcore->Set_typeaff($mode);
-
-$form = new Form($db);
-
-$formconfirm = getFormConfirm($PDOdb, $form, $object, $action);
-if (!empty($formconfirm)) echo $formconfirm;
-
-$TBS=new TTemplateTBS();
-$TBS->TBS->protect=false;
-$TBS->TBS->noerr=true;
-
-if ($mode == 'edit') echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment');
-
-$linkback = '<a href="'.dol_buildpath('/importpayment/list.php', 1).'">' . $langs->trans("BackToList") . '</a>';
-print $TBS->render('tpl/card.tpl.php'
-	,array() // Block
-	,array(
-		'object'=>$object
-		,'view' => array(
-			'mode' => $mode
-			,'action' => 'save'
-			,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
-			,'urllist' => dol_buildpath('/importpayment/list.php', 1)
-			,'showRef' => ($action == 'create') ? $langs->trans('Draft') : $form->showrefnav($object->generic, 'ref', $linkback, 1, 'ref', 'ref', '')
-			,'showLabel' => $formcore->texte('', 'label', $object->label, 80, 255)
-//			,'showNote' => $formcore->zonetexte('', 'note', $object->note, 80, 8)
-			,'showStatus' => $object->getLibStatut(1)
-		)
-		,'langs' => $langs
-		,'user' => $user
-		,'conf' => $conf
-		,'TImportPayment' => array(
-			'STATUS_DRAFT' => TImportPayment::STATUS_DRAFT
-			,'STATUS_VALIDATED' => TImportPayment::STATUS_VALIDATED
-			,'STATUS_REFUSED' => TImportPayment::STATUS_REFUSED
-			,'STATUS_ACCEPTED' => TImportPayment::STATUS_ACCEPTED
-		)
-	)
-);
-
-if ($mode == 'edit') echo $formcore->end_form();
-
-if ($mode == 'view' && $object->getId()) $somethingshown = $form->showLinkedObjectBlock($object->generic);
-
-llxFooter();

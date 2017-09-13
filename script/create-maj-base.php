@@ -11,7 +11,7 @@ if(!defined('INC_FROM_DOLIBARR')) {
 }
 
 
-/* uncomment
+// uncomment
 
 
 dol_include_once('/importpayment/class/importpayment.class.php');
@@ -20,7 +20,3 @@ $PDOdb=new TPDOdb;
 
 $o=new TImportPayment;
 $o->init_db_by_vars($PDOdb);
-
-$o=new TImportPaymentChild;
-$o->init_db_by_vars($PDOdb);
-*/

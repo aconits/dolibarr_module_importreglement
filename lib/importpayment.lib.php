@@ -79,26 +79,16 @@ function importpayment_prepare_head(TImportPayment $object)
 	return $head;
 }
 
-function getFormConfirm(&$PDOdb, &$form, &$object, $action)
+function getFormConfirm(&$form, &$object, $action, $formquestion)
 {
     global $langs,$conf,$user;
 
     $formconfirm = '';
 
-    if ($action == 'validate' && !empty($user->rights->importpayment->write))
+    if ($action == 'import' && !empty($user->rights->facture->paiement) && !empty($user->rights->importpayment->import))
     {
         $text = $langs->trans('ConfirmValidateImportPayment', $object->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateImportPayment'), $text, 'confirm_validate', '', 0, 1);
-    }
-    elseif ($action == 'delete' && !empty($user->rights->importpayment->write))
-    {
-        $text = $langs->trans('ConfirmDeleteImportPayment');
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteImportPayment'), $text, 'confirm_delete', '', 0, 1);
-    }
-    elseif ($action == 'clone' && !empty($user->rights->importpayment->write))
-    {
-        $text = $langs->trans('ConfirmCloneImportPayment', $object->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('CloneImportPayment'), $text, 'confirm_clone', '', 0, 1);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'], $langs->trans('ConfirmImportPayment'), $text, 'confirm_import', $formquestion, 0, 1);
     }
 
     return $formconfirm;

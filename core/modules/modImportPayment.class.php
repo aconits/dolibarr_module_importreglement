@@ -55,7 +55,7 @@ class modImportPayment extends DolibarrModules
 
 		// Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
 		// It is used to group modules in module setup page
-		$this->family = "ATM";
+		$this->family = "financial";
 		// Module label (no space allowed), used if translation string 'ModuleXXXName' not found (where XXX is value of numeric property 'numero' of module)
 		$this->name = preg_replace('/^mod/i','',get_class($this));
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
@@ -101,11 +101,11 @@ class modImportPayment extends DolibarrModules
 
 		// Dependencies
 		$this->hidden = false;			// A condition to hide module
-		$this->depends = array();		// List of modules id that must be enabled if this module is enabled
+		$this->depends = array('modFacture');		// List of modules id that must be enabled if this module is enabled
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
 		$this->phpmin = array(5,0);					// Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(3,0);	// Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = array(3,6);	// Minimum version of Dolibarr required by module
 		$this->langfiles = array("importpayment@importpayment");
 
 		// Constants
@@ -174,132 +174,34 @@ class modImportPayment extends DolibarrModules
 		$this->rights = array();		// Permission array used by this module
 		$r=0;
 
-		// Add here list of permission defined by an id, a label, a boolean and two constant strings.
-		// Example:
-		// $this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
-		// $this->rights[$r][1] = 'Permision label';	// Permission label
-		// $this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
-		// $this->rights[$r][4] = 'level1';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		// $this->rights[$r][5] = 'level2';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		// $r++;
-/*
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
-		$this->rights[$r][1] = 'importpayment_read';	// Permission label
-		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
-		$this->rights[$r][4] = 'read';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][1] = 'importpayment_right_to_import';	// Permission label
+		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
+		$this->rights[$r][4] = 'import';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$r++;
-		
-		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
-		$this->rights[$r][1] = 'importpayment_write';	// Permission label
-		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
-		$this->rights[$r][4] = 'write';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		$r++;
-*/
+
 
 		// Main menu entries
 		$this->menu = array();			// List of menus to add
 		$r=0;
 
-		// Add here entries to declare new menus
-		//
-		// Example to declare a new Top Menu entry and its Left menu entry:
-		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=importpayment',		// Put 0 if this is a single top menu or keep fk_mainmenu to give an entry on left
-		//							'type'=>'top',			                // This is a Top menu entry
-		//							'titre'=>'ImportPayment top menu',
-		//							'mainmenu'=>'importpayment',
-		//							'leftmenu'=>'importpayment_left',			// This is the name of left menu for the next entries
-		//							'url'=>'/importpayment/pagetop.php',
-		//							'langs'=>'importpayment@importpayment',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-		//							'position'=>100,
-		//							'enabled'=>'$conf->importpayment->enabled',	// Define condition to show or hide menu entry. Use '$conf->importpayment->enabled' if entry must be visible if module is enabled.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->importpayment->level1->level2' if you want your menu with a permission rules
-		//							'target'=>'',
-		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
-		// $r++;
-		//
-		// Example to declare a Left Menu entry into an existing Top menu entry:
-		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=importpayment,fk_leftmenu=importpayment_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-		//							'type'=>'left',			                // This is a Left menu entry
-		//							'titre'=>'ImportPayment left menu',
-		//							'mainmenu'=>'importpayment',
-		//							'leftmenu'=>'importpayment_left',			// Goes into left menu previously created by the mainmenu
-		//							'url'=>'/importpayment/pagelevel2.php',
-		//							'langs'=>'importpayment@importpayment',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-		//							'position'=>100,
-		//							'enabled'=>'$conf->importpayment->enabled',  // Define condition to show or hide menu entry. Use '$conf->importpayment->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->importpayment->level1->level2' if you want your menu with a permission rules
-		//							'target'=>'',
-		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
-		// $r++;
-		
-/*
-		$this->menu[$r]=array(	
-			'fk_menu'=>0,			                // Put 0 if this is a top menu
-			'type'=>'top',			                // This is a Top menu entry
-			'titre'=>$langs->trans('TopMenuImportPayment'),
-			'mainmenu'=>'importpayment',
-			'leftmenu'=>'',
-			'url'=>'/importpayment/list.php',
-			'langs'=>'importpayment@importpayment',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>100+$r,
-			'enabled'=>'$conf->importpayment->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->importpayment->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
-			'target'=>'',
-			'user'=>2
-		);
-		$r++;
-
 		$this->menu[$r]=array(
-			'fk_menu'=>'fk_mainmenu=importpayment',			                // Put 0 if this is a top menu
+			'fk_menu'=>'fk_mainmenu=accountancy',			                // Put 0 if this is a top menu
 			'type'=>'left',			                // This is a Top menu entry
 			'titre'=>$langs->trans('TopMenuImportPayment'),
-			'mainmenu'=>'importpayment',
+			'mainmenu'=>'accountancy',
 			'leftmenu'=>'importpayment_left',
-			'url'=>'/importpayment/list.php',
+			'url'=>'/importpayment/card.php',
 			'langs'=>'importpayment@importpayment',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
 			'enabled'=>'$conf->importpayment->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->importpayment->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'perms'=>'$user->rights->facture->paiement && $user->rights->importpayment->import',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>2
 		);
 		$r++;
-		
-		$this->menu[$r]=array(
-			'fk_menu'=>'fk_mainmenu=importpayment,fk_leftmenu=importpayment_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>$langs->trans('LeftMenuImportPaymentCreate'),
-			'mainmenu'=>'importpayment',
-			'leftmenu'=>'importpayment_left_create',
-			'url'=>'/importpayment/card.php?action=create',
-			'langs'=>'importpayment@importpayment',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>100+$r,
-			'enabled'=> '$conf->importpayment->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=> '$user->rights->importpayment->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
-			'target'=>'',
-			'user'=>2
-		);				                // 0=Menu for internal users, 1=external users, 2=both
-		$r++;
-		
 
-		$this->menu[$r]=array(
-			'fk_menu'=>'fk_mainmenu=importpayment,fk_leftmenu=importpayment_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>$langs->trans('LeftMenuImportPaymentList'),
-			'mainmenu'=>'importpayment',
-			'leftmenu'=>'importpayment_left_list',
-			'url'=>'/importpayment/list.php',
-			'langs'=>'importpayment@importpayment',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>100+$r,
-			'enabled'=> '$conf->importpayment->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=> '$user->rights->importpayment->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
-			'target'=>'',
-			'user'=>2
-		);				                // 0=Menu for internal users, 1=external users, 2=both
-		$r++;
-*/
 		
 		// Exports
 		$r=1;
