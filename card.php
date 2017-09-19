@@ -3,15 +3,22 @@
 require 'config.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
+require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
+
 dol_include_once('/importpayment/class/importpayment.class.php');
 dol_include_once('/importpayment/lib/importpayment.lib.php');
+
+dol_include_once('/compta/facture/class/facture.class.php');
+dol_include_once('/compta/paiement/class/paiement.class.php');
 
 if(empty($user->rights->facture->paiement) || empty($user->rights->importpayment->import)) accessforbidden();
 
 $langs->load('importpayment@importpayment');
 $langs->load('bills');
 $action = GETPOST('action');
-
+$step = GETPOST('step', 'int');
+if (empty($step)) $step = 1;
+	
 $object = new TImportPayment;
 
 $hookmanager->initHooks(array('importpaymentcard', 'globalcard'));
@@ -19,7 +26,6 @@ $hookmanager->initHooks(array('importpaymentcard', 'globalcard'));
 /*
  * Actions
  */
- 
 
 $parameters = array();
 $reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some
@@ -28,9 +34,19 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 
 $error = 0;
 switch ($action) {
-	case 'import':
+	case 'gotostep2':
+		$datep = dol_mktime(12, 0, 0, GETPOST('pmonth'), GETPOST('pday'), GETPOST('pyear'));
+		$fk_c_paiement = GETPOST('fk_c_paiement', 'int');
+		$fk_bank_account = GETPOST('fk_bank_account');
 		
-			
+		$file = $_FILES['paymentfile'];
+		
+		$TData = $object->parseFile($file['tmp_name'], GETPOST('nb_ignore', 'int'));
+		
+		// TODO if error or required field empty then goto step1
+		
+		_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account);
+		exit;
 		break;
 	case 'confirm_import':
 		
@@ -39,7 +55,7 @@ switch ($action) {
 		break;
 	
 	default:
-		_fiche($object, $action);
+		_step1($object, $action, $step);
 		break;
 }
 
@@ -48,34 +64,22 @@ switch ($action) {
 /**
  * View
  */
-function _fiche(&$object, $action)
+function _step1(&$object)
 {
 	global $db,$langs,$conf,$user;
 	
-	$title=$langs->trans("ImportPayment");
-	llxHeader('',$title);
-
-	$head = importpayment_prepare_head($object);
-	$picto = 'generic';
-	dol_fiche_head($head, 'card', $langs->trans("ImportPayment"), 0, $picto);
-
+	_header($object);
+	
 	$formcore = new TFormCore;
 	$formcore->Set_typeaff('edit');
 	
 	$form = new Form($db);
-
-	$formquestion['text'] = '<textarea></textarea>';
-	$formconfirm = getFormConfirm($form, $object, $action, $formquestion);
-	if (!empty($formconfirm)) echo $formconfirm;
-
+	
 	$TBS=new TTemplateTBS();
 	$TBS->TBS->protect=false;
 	$TBS->TBS->noerr=true;
 
-	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment');
-
-	$step = GETPOST('step', 'int');
-	if (empty($step)) $step = 1;
+	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
 	
 	ob_start();
 	$form->select_types_paiements('', 'fk_c_paiement');
@@ -90,8 +94,8 @@ function _fiche(&$object, $action)
 		,array(
 			'object'=>$object
 			,'view' => array(
-				'action' => 'save'
-				,'step' => $step
+				'action' => 'gotostep2'
+				,'step' => 1
 				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
 				,'showInputFile' => $formcore->fichier('', 'paymentfile', '', $conf->global->MAIN_UPLOAD_DOC)
 				,'showInputPaymentDate' => $form->select_date('', 'p', 0, 0, 0, '', 1, 1, 1)
@@ -103,7 +107,83 @@ function _fiche(&$object, $action)
 	);
 
 	echo $formcore->end_form();
+	
+	_footer();
+}
 
+function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account)
+{
+	global $db,$langs;
+	
+	_header($object);
+	
+	$TBS=new TTemplateTBS();
+	$TBS->TBS->protect=false;
+	$TBS->TBS->noerr=true;
+	
+	$form = new Form($db);
+	$form->load_cache_types_paiements();
+	
+	$formcore = new TFormCore;
+	$formcore->Set_typeaff('edit');
+	
+	$account = new Account($db);
+	$account->fetch($fk_bank_account);
+	// $form->cache_types_paiements => fk_c_paiement
+	// dol_print_date();
+	
+	
+	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
+	
+	print $TBS->render('tpl/card.tpl.php'
+		,array(
+			'TData' => $TData
+		) // Block
+		,array(
+			'object'=>$object
+			,'view' => array(
+				'action' => 'gotostep3'
+				,'step' => 2
+				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
+				,'showInputFile' => ''
+				,'showInputPaymentDate' => dol_print_date($datep, 'day')
+				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label']
+				,'showInputAccountToCredit' => $account->label
+			)
+			,'langs' => $langs
+		)
+	);
+	
+	echo $formcore->end_form();
+	
+	_footer();
+}
+
+function _header(&$object)
+{
+	global $langs;
+	
+	$title=$langs->trans("ImportPayment");
+	llxHeader('',$title);
+
+	$head = importpayment_prepare_head($object);
+	$picto = 'generic';
+	dol_fiche_head($head, 'card', $langs->trans("ImportPayment"), 0, $picto);
+}
+
+function _footer()
+{
+	global $db;
+	
 	llxFooter();
 	$db->close();
 }
+
+//function _fiche(&$object, $action, $step)
+//{
+//	global $db,$langs,$conf,$user;
+//
+//	$formquestion['text'] = '<textarea></textarea>';
+//	$formconfirm = getFormConfirm($form, $object, $action, $formquestion);
+//	if (!empty($formconfirm)) echo $formconfirm;
+//}

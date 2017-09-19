@@ -9,7 +9,8 @@ ImportPaymentAbout = A propos du module ImportPayment
 ImportPayment=ImportPayment
 
 # MENU
-TopMenuImportPayment=ImportPayment
+TopMenuImportPayment=Import règlements
+LeftMenuImportPaymentCreate=Nouvelle import
 
 # STATUS
 ImportPaymentStatusDraft=Brouillon (à valider)

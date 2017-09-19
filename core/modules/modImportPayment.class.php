@@ -201,6 +201,22 @@ class modImportPayment extends DolibarrModules
 			'user'=>2
 		);
 		$r++;
+		
+		$this->menu[$r]=array(
+			'fk_menu'=>'fk_mainmenu=accountancy,fk_leftmenu=importpayment_left',			                // Put 0 if this is a top menu
+			'type'=>'left',			                // This is a Top menu entry
+			'titre'=>$langs->trans('LeftMenuImportPaymentCreate'),
+			'mainmenu'=>'accountancy',
+			'leftmenu'=>'importpayment_left_create',
+			'url'=>'/importpayment/card.php',
+			'langs'=>'importpayment@importpayment',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>100+$r,
+			'enabled'=>'$conf->importpayment->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
+			'perms'=>'$user->rights->facture->paiement && $user->rights->importpayment->import',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2
+		);
+		$r++;
 
 		
 		// Exports
