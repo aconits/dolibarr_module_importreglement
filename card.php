@@ -39,13 +39,17 @@ switch ($action) {
 		$fk_c_paiement = GETPOST('fk_c_paiement', 'int');
 		$fk_bank_account = GETPOST('fk_bank_account');
 		
+		$nb_ignore = GETPOST('nb_ignore');
+		$delimiter = GETPOST('delimiter');
+		$enclosure = GETPOST('enclosure');
+		
 		$file = $_FILES['paymentfile'];
 		
 		$TData = $object->parseFile($file['tmp_name'], GETPOST('nb_ignore', 'int'));
 		
 		// TODO if error or required field empty then goto step1
 		
-		_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account);
+		_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure);
 		exit;
 		break;
 	case 'confirm_import':
@@ -81,16 +85,18 @@ function _step1(&$object)
 
 	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
 	
+	$datep = dol_mktime(12, 0, 0, GETPOST('pmonth'), GETPOST('pday'), GETPOST('pyear'));
+	
 	ob_start();
-	$form->select_types_paiements('', 'fk_c_paiement');
+	$form->select_types_paiements(GETPOST('fk_c_paiement'), 'fk_c_paiement');
 	$selectPaymentMode = ob_get_clean();
 	
 	ob_start();
-	$form->select_comptes('', 'fk_bank_account');
+	$form->select_comptes(GETPOST('fk_bank_account'), 'fk_bank_account');
 	$selectAccountToCredit = ob_get_clean();
 	
 	print $TBS->render('tpl/card.tpl.php'
-		,array() // Block
+		,array('TData'=>array()) // Block
 		,array(
 			'object'=>$object
 			,'view' => array(
@@ -98,8 +104,11 @@ function _step1(&$object)
 				,'step' => 1
 				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
 				,'showInputFile' => $formcore->fichier('', 'paymentfile', '', $conf->global->MAIN_UPLOAD_DOC)
-				,'showInputPaymentDate' => $form->select_date('', 'p', 0, 0, 0, '', 1, 1, 1)
+				,'showNbIgnore' => $formcore->number('', 'nb_ignore', (int) $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE, 5)
+				,'showInputPaymentDate' => $form->select_date($datep, 'p', 0, 0, 0, '', 1, 1, 1)
+				,'showDelimiter' => $formcore->texte('', 'delimiter', $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER, 5)
 				,'showInputPaymentMode' => $selectPaymentMode
+				,'showEnclosure' => $formcore->texte('', 'enclosure', $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE, 5)
 				,'showInputAccountToCredit' => $selectAccountToCredit
 			)
 			,'langs' => $langs
@@ -111,7 +120,7 @@ function _step1(&$object)
 	_footer();
 }
 
-function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account)
+function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure)
 {
 	global $db,$langs;
 	
@@ -145,9 +154,13 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account)
 				'action' => 'gotostep3'
 				,'step' => 2
 				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
+				,'colspan' => !empty($TData[0]) ? count($TData[0])+1 : 1
 				,'showInputFile' => ''
+				,'showNbIgnore' => $nb_ignore
 				,'showInputPaymentDate' => dol_print_date($datep, 'day')
+				,'showDelimiter' => $delimiter
 				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label']
+				,'showEnclosure' => $enclosure
 				,'showInputAccountToCredit' => $account->label
 			)
 			,'langs' => $langs

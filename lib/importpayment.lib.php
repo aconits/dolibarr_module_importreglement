@@ -65,7 +65,7 @@ function importpayment_prepare_head(TImportPayment $object)
     global $db, $langs, $conf, $user;
     $h = 0;
     $head = array();
-    $head[$h][0] = dol_buildpath('/importpayment/card.php', 1).'?id='.$object->getId();
+    $head[$h][0] = dol_buildpath('/importpayment/card.php', 1);
     $head[$h][1] = $langs->trans("ImportPaymentCard");
     $head[$h][2] = 'card';
     $h++;
