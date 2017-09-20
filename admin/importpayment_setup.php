@@ -34,6 +34,7 @@ require_once '../lib/importpayment.lib.php';
 
 // Translations
 $langs->load("importpayment@importpayment");
+$langs->load("admin");
 
 // Access control
 if (! $user->admin) {
@@ -105,31 +106,57 @@ print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="center" width="100">'.$langs->trans("Value").'</td>'."\n";
 print '</tr>';
 
-// Example with a yes / no select
 $var=!$var;
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("ParamLabel").'</td>';
+print '<td>'.$langs->trans("IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">'; // Keep form because ajax_constantonoff return single link with <a> if the js is disabled
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT">';
+print ajax_constantonoff('IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT');
+print '</form>';
+print '</td></tr>';
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("IMPORTPAYMENT_DEFAULT_NB_INGORE").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_CONSTNAME">';
-print $form->selectyesno("CONSTNAME",$conf->global->CONSTNAME,1);
+print '<input type="hidden" name="action" value="set_IMPORTPAYMENT_DEFAULT_NB_INGORE">';
+print '<input type="text" name="IMPORTPAYMENT_DEFAULT_NB_INGORE" value="'.$conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE.'" size="5" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("ParamLabel").'</td>';
+print '<td>'.$langs->trans("IMPORTPAYMENT_DEFAULT_DELIMITER").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
-print '<td align="center" width="300">';
-print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">'; // Keep form because ajax_constantonoff return single link with <a> if the js is disabled
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_CONSTNAME">';
-print ajax_constantonoff('CONSTNAME');
+print '<input type="hidden" name="action" value="set_IMPORTPAYMENT_DEFAULT_DELIMITER">';
+print '<input type="text" name="IMPORTPAYMENT_DEFAULT_DELIMITER" value="'.dol_escape_htmltag($conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER).'" size="5" />';
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("IMPORTPAYMENT_DEFAULT_ENCLOSURE").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_IMPORTPAYMENT_DEFAULT_ENCLOSURE">';
+print '<input type="text" name="IMPORTPAYMENT_DEFAULT_ENCLOSURE" value="'.dol_escape_htmltag($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE).'" size="5" />';
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+print '</form>';
+print '</td></tr>';
+
 
 print '</table>';
 

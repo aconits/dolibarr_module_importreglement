@@ -40,8 +40,11 @@ switch ($action) {
 		$fk_bank_account = GETPOST('fk_bank_account');
 		
 		$nb_ignore = GETPOST('nb_ignore');
+		if (empty($nb_ignore) && $nb_ignore !== 0) $nb_ignore = $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE;
 		$delimiter = GETPOST('delimiter');
+		if (empty($delimiter)) $delimiter = $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER;
 		$enclosure = GETPOST('enclosure');
+		if (empty($enclosure)) $enclosure = $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE;
 		
 		$file = $_FILES['paymentfile'];
 		
@@ -104,11 +107,11 @@ function _step1(&$object)
 				,'step' => 1
 				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
 				,'showInputFile' => $formcore->fichier('', 'paymentfile', '', $conf->global->MAIN_UPLOAD_DOC)
-				,'showNbIgnore' => $formcore->number('', 'nb_ignore', (int) $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE, 5)
+				,'showNbIgnore' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->number('', 'nb_ignore', (int) $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE, 5) : $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE
 				,'showInputPaymentDate' => $form->select_date($datep, 'p', 0, 0, 0, '', 1, 1, 1)
-				,'showDelimiter' => $formcore->texte('', 'delimiter', $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER, 5)
+				,'showDelimiter' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'delimiter', $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER, 5) : $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER
 				,'showInputPaymentMode' => $selectPaymentMode
-				,'showEnclosure' => $formcore->texte('', 'enclosure', $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE, 5)
+				,'showEnclosure' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE, 5) : $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE
 				,'showInputAccountToCredit' => $selectAccountToCredit
 			)
 			,'langs' => $langs

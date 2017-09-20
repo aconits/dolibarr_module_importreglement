@@ -1,27 +1,16 @@
-Module104741Name = ImportPayment
-Module104741Desc = ImportPayment Description
+Module104741Name = Import règlement
+Module104741Desc = Outil d'importation de fichier CSV afin de créer les règlements sur facture
 
 ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
 
-ImportPaymentSetup = Configuration du module ImportPayment
-ImportPaymentAbout = A propos du module ImportPayment
+ImportPaymentSetup = Configuration du module Import règlement
+ImportPaymentAbout = A propos du module Import règlement
 
-ImportPayment=ImportPayment
+ImportPayment=Import règlement
 
 # MENU
 TopMenuImportPayment=Import règlements
 LeftMenuImportPaymentCreate=Nouvelle import
-
-# STATUS
-ImportPaymentStatusDraft=Brouillon (à valider)
-ImportPaymentStatusValidated=Validée (à accepter)
-ImportPaymentStatusRefused=Refusée (fermée)
-ImportPaymentStatusAccepted=Acceptée (fermée)
-
-Draft=Brouillon
-Validate=Validé
-Refused=Refusé
-Accepted=Accepté
 
 # LIST
 ImportPaymentList=Liste ImportPayment
@@ -32,14 +21,16 @@ NewImportPayment=Création ImportPayment
 ImportPaymentCard=Fiche ImportPayment
 
 # CARD TPL
-Save=Enregistrer
-CreateDraft=Créer brouillon
-Cancel=Annuler
-Validate=Valider
-Modify=Modifier
-Reopen=Rouvrir
-ToClone=Cloner
-Delete=Supprimer
-
-#
+PaymentDate=Date de règlement
+NbIgnore=Nombre de lignes à ignorer
+Delimiter=Caractère de séparation
+Enclosure=Caractère d'encadrement
+ParseFile=Lecture du fichier
 ImportPaymentDataParsed=Analyse des données
+
+
+# CONFIGURATION
+IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT=Permet de redéfinir les configurations par défaut concernant le traitement du fichier via le formulaire d'import
+IMPORTPAYMENT_DEFAULT_NB_INGORE=Nombre de lignes à ignorer lors de la lecture du fichier
+IMPORTPAYMENT_DEFAULT_DELIMITER=Caractère de séparation des champs
+IMPORTPAYMENT_DEFAULT_ENCLOSURE=Caractère d'encadrement des chaines
