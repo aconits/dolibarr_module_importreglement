@@ -144,12 +144,27 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 	// $form->cache_types_paiements => fk_c_paiement
 	// dol_print_date();
 	
+// TODO transformer cette variable en select avec les différents champs possibles
+	// il doit y avoir un select par colonne et l'utilisateur doit choisir la correspondance avec les colonnes proposés par son fichier
+	// ajouter un choix "ignorer"
+	// ajout une sauvegarde dans une constante sur l'ordre des entêtes
+	$THeader = array(
+		array('class' => 'col_fk_soc fieldrequired', 'title' => $langs->transnoentities('Company'))
+		,array('class' => 'col_datep fieldrequired', 'title' => $langs->transnoentities('PaymentDate'))
+		,array('class' => 'col_fk_c_paiement col_paiementcode fieldrequired', 'title' => $langs->transnoentities('PaymentMode'))
+		,array('class' => 'col_fk_bank_account col_accountid fieldrequired', 'title' => $langs->transnoentities('AccountToCredit'))
+		,array('class' => 'col_num_paiement', 'title' => $langs->transnoentities('Numero').' <em>('.$langs->transnoentities("ChequeOrTransferNumber").')</em>')
+		,array('class' => 'col_chqemetteur', 'title' => $langs->transnoentities('CheckTransmitter').' <em>('.$langs->transnoentities("ChequeMaker").')</em>')
+		,array('class' => 'col_chqbank', 'title' => $langs->transnoentities('Bank').' <em>('.$langs->transnoentities("ChequeBank").')</em>')
+		,array('class' => 'col_chqbank', 'title' => $langs->transnoentities('Comments'))
+	);
 	
 	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
 	
 	print $TBS->render('tpl/card.tpl.php'
 		,array(
 			'TData' => $TData
+			,'THeader' => $THeader
 		) // Block
 		,array(
 			'object'=>$object

@@ -41,6 +41,7 @@
 			</tr>
 			<tr class="liste_titre">
 				<th><input type="checkbox" title="[langs.transnoentities(ToImport)]" onclick="$('.TLineIndex').attr('checked', $(this).is(':checked'));" /></th>
+				<th class="[THeader.class;block=th]">[THeader.title;strconv=no]</th>
 			</tr>
 			<tr class="impair">
 				<td><input class="TLineIndex" type="checkbox" name="TLineIndex[]" value="[TData.$]"/></td>
