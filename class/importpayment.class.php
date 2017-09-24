@@ -62,13 +62,17 @@ class TImportPayment extends TObjetStd
 		global $langs;
 		
 		$TValue = array(
-			'ref_facture' => $langs->transnoentities('Invoice')
+			'ignored' => $langs->transnoentities('Ignored')
+			,'ref_facture' => $langs->transnoentities('Invoice')
 			//,'fk_soc' => $langs->transnoentities('Company') // TODO à ignorer si un fk_soc existe en param global
 			//,'datep' => $langs->transnoentities('PaymentDate') // TODO à ignorer si une date de paiement existe en param global
 			,'num_paiement' => $langs->transnoentities('Numero').' <em>('.$langs->transnoentities("ChequeOrTransferNumber").')</em>'
 			,'chqemetteur' => $langs->transnoentities('CheckTransmitter').' <em>('.$langs->transnoentities("ChequeMaker").')</em>'
 			,'chqbank' => $langs->transnoentities('Bank').' <em>('.$langs->transnoentities("ChequeBank").')</em>'
-			,'comment' => $langs->transnoentities('Comments') // TODO à décliner en comment_line_1, comment_line_2, ...
+			,'comment1' => $langs->transnoentities('Comment1')
+//			,'comment2' => $langs->transnoentities('Comment2')
+//			,'comment3' => $langs->transnoentities('Comment3')
+//			,'comment4' => $langs->transnoentities('Comment4')
 		);
 		
 		return $TValue;

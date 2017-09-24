@@ -31,6 +31,7 @@ if (! $res) {
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
 require_once '../lib/importpayment.lib.php';
+dol_include_once('/importpayment/class/importpayment.class.php');
 
 // Translations
 $langs->load("importpayment@importpayment");
@@ -79,7 +80,8 @@ if (preg_match('/del_(.*)/',$action,$reg))
  * View
  */
 $page_name = "ImportPaymentSetup";
-llxHeader('', $langs->trans($page_name));
+$TJs = array('/importpayment/js/importpayment.js');
+llxHeader('', $langs->trans($page_name), '', '', 0, 0, $TJs);
 
 // Subheader
 $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
@@ -159,6 +161,29 @@ print '</td></tr>';
 
 
 print '</table>';
+
+if (!empty($conf->global->IMPORTPAYMENT_TFIELD_ORDER)) $TField = unserialize($conf->global->IMPORTPAYMENT_TFIELD_ORDER);
+else $TField = TImportPayment::getSelectValues();
+
+print '<br />';
+print '<div class="underbanner clearboth"></div>';
+print '<div class="titre">'.$langs->trans("ColumnsOrder").'</div>';
+
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<ul id="columns_order">';
+
+foreach ($TField as $field => $label)
+{
+	print '<li>';
+	print $form->selectarray('TField[]', $TField, $field, 0, 0, 0, '', 0, 0, 0, '', '', 0, '', 0, 1);
+	print '</li>';
+}
+
+print '</ul>';
+print '</form>';
+
+print '<input type="button" id="add_column" value="add" />';
+print '<script type="text/javascript"> IMPORPAYMENT_TFIELD = '.json_encode($form->selectarray('TField[]', $TField, '', 0, 0, 0, '', 0, 0, 0, '', '', 0, '', 0, 1)).'; </script>';
 
 llxFooter();
 
