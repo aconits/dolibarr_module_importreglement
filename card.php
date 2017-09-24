@@ -17,6 +17,7 @@ $langs->load('importpayment@importpayment');
 $langs->load('bills');
 $action = GETPOST('action');
 $step = GETPOST('step', 'int');
+
 if (empty($step)) $step = 1;
 	
 $object = new TImportPayment;
@@ -48,7 +49,7 @@ switch ($action) {
 		
 		$file = $_FILES['paymentfile'];
 		
-		$TData = $object->parseFile($file['tmp_name'], GETPOST('nb_ignore', 'int'));
+		$TData = $object->parseFile($file['tmp_name'], $nb_ignore, $delimiter, $enclosure);
 		
 		// TODO if error or required field empty then goto step1
 		
