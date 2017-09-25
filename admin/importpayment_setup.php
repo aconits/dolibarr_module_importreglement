@@ -36,6 +36,7 @@ dol_include_once('/importpayment/class/importpayment.class.php');
 // Translations
 $langs->load("importpayment@importpayment");
 $langs->load("admin");
+$langs->load('bills');
 
 // Access control
 if (! $user->admin) {
@@ -51,8 +52,12 @@ $action = GETPOST('action', 'alpha');
 if (preg_match('/set_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
-	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
+	$value=GETPOST($code);
+	if ($code === 'IMPORTPAYMENT_TFIELD_ORDER') $value=serialize(GETPOST('TField'));
+	
+	if (dolibarr_set_const($db, $code, $value, 'chaine', 0, '', $conf->entity) > 0)
 	{
+		setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
 		header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
 	}
@@ -81,7 +86,8 @@ if (preg_match('/del_(.*)/',$action,$reg))
  */
 $page_name = "ImportPaymentSetup";
 $TJs = array('/importpayment/js/importpayment.js');
-llxHeader('', $langs->trans($page_name), '', '', 0, 0, $TJs);
+$TCss = array('/importpayment/css/importpayment.css');
+llxHeader('', $langs->trans($page_name), '', '', 0, 0, $TJs, $TCss);
 
 // Subheader
 $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
@@ -162,25 +168,58 @@ print '</td></tr>';
 
 print '</table>';
 
-if (!empty($conf->global->IMPORTPAYMENT_TFIELD_ORDER)) $TField = unserialize($conf->global->IMPORTPAYMENT_TFIELD_ORDER);
-else $TField = TImportPayment::getSelectValues();
+$TFieldPossible = TImportPayment::getTFieldPossible();
+$TFieldRequired = TImportPayment::getTFieldRequired();
+$TFieldOptional = TImportPayment::getTFieldOptional();
+
+$TField = TImportPayment::getTFieldOrder();
 
 print '<br />';
 print '<div class="underbanner clearboth"></div>';
 print '<div class="titre">'.$langs->trans("ColumnsOrder").'</div>';
 
-print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<ul id="columns_order">';
-
-foreach ($TField as $field => $label)
+if (!checkFieldsRequiredUse($TField, $TFieldRequired))
 {
-	print '<li>';
-	print $form->selectarray('TField[]', $TField, $field, 0, 0, 0, '', 0, 0, 0, '', '', 0, '', 0, 1);
-	print '</li>';
+	print '<div class="error">'.$langs->trans('ImportPaymentErrorOneOrMoreFieldsRequiredNotUsed', implode(', ', $TFieldRequired)).'</div>';
 }
 
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="action" value="set_IMPORTPAYMENT_TFIELD_ORDER">';
+
+print '<fieldset>';
+print '<legend>'.$langs->trans('ImportPaymentFieldsOrder').'</legend>';
+print '<ul id="columns_order" class="inline sortable">';
+foreach ($TField as $field)
+{
+	print '<li '.((!empty($TFieldRequired[$field])) ? 'class="fieldrequired" ' : '').'data-field="'.$field.'">';
+	print '<input type="hidden" name="TField[]" value="'.$field.'" />';
+	print '<span class="grip" style="background-image: url(\''.DOL_URL_ROOT.'/theme/'.$conf->theme.'/img/grip.png\'); background-repeat: no-repeat; background-position: center center;">&nbsp;</span>';
+	print $TFieldPossible[$field];
+	print img_picto($langs->trans('Delete'), 'delete', 'onclick="removeElementPI(this);" class="remove"');
+	print '</li>';
+}
 print '</ul>';
+
+print '<div class="center"><input class="button" name="bouton" value="'.$langs->trans('Save').'" type="submit"></div>';
+print '</fieldset>';
+
 print '</form>';
+
+
+print '<fieldset>';
+print '<legend>'.$langs->trans('ImportPaymentFieldsAvailable').'</legend>';
+print '<ul id="columns_available" class="inline sortable">';
+foreach ($TFieldPossible as $field => $label)
+{
+	print '<li '.((!empty($TFieldRequired[$field])) ? 'class="fieldrequired" ' : '').'data-field="'.$field.'">';
+	print '<input type="hidden" name="TField[]" value="'.$field.'" />';
+	print '<span class="grip" style="background-image: url(\''.DOL_URL_ROOT.'/theme/'.$conf->theme.'/img/grip.png\'); background-repeat: no-repeat; background-position: center center;">&nbsp;</span>';
+	print $label;
+	print img_picto($langs->trans('Delete'), 'delete', 'onclick="removeElementPI(this);" class="remove"');
+	print '</li>';
+}
+print '</ul>';
+print '</fieldset>';
 
 print '<input type="button" id="add_column" value="add" />';
 print '<script type="text/javascript"> IMPORPAYMENT_TFIELD = '.json_encode($form->selectarray('TField[]', $TField, '', 0, 0, 0, '', 0, 0, 0, '', '', 0, '', 0, 1)).'; </script>';

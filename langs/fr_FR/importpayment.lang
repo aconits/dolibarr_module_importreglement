@@ -34,3 +34,6 @@ IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT=Permet de redéfinir les configurati
 IMPORTPAYMENT_DEFAULT_NB_INGORE=Nombre de lignes à ignorer lors de la lecture du fichier
 IMPORTPAYMENT_DEFAULT_DELIMITER=Caractère de séparation des champs
 IMPORTPAYMENT_DEFAULT_ENCLOSURE=Caractère d'encadrement des chaines
+ImportPaymentErrorOneOrMoreFieldsRequiredNotUsed=Erreur dans la configuration des colonnes, une ou plusieurs colonnes obligatoires ne sont pas renseignées : <u>%s</u>
+ImportPaymentFieldsOrder=Ordre des champs contenu dans le fichier d'import
+ImportPaymentFieldsAvailable=Liste des champs disponibles

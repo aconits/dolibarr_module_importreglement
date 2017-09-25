@@ -93,3 +93,15 @@ function getFormConfirm(&$form, &$object, $action, $formquestion)
 
     return $formconfirm;
 }
+
+
+function checkFieldsRequiredUse(&$TField, &$TFieldRequired)
+{
+	
+	foreach ($TFieldRequired as $k => $v)
+	{
+		if (!in_array($k, $TField)) return false;
+	}
+	
+	return true;
+}

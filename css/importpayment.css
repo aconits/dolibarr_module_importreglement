@@ -1,0 +1,41 @@
+#columns_order:after {
+    content:"";
+    display:inline-block;
+    height:35px;
+    vertical-align:bottom;
+}
+
+#columns_available .grip, #columns_available .remove {
+	display:none;
+}
+
+legend {
+	font-weight:bold;
+	padding:5px;
+}
+
+ul.inline li {
+	font-size:14px;
+	display:inline-block;
+	text-align: center;
+	border:1px solid #ccc;
+	padding:2px 5px;
+	margin-right:4px;
+	list-style-type:none;
+	cursor:grab;
+}
+
+ul.inline li .grip {
+	display: inline-block;
+	width:10px;
+	margin-right: 4px;
+}
+ul.inline li .remove {
+	cursor:pointer;
+	vertical-align: middle;
+}
+
+div.error {
+	padding:10px;
+	border-radius: 5px;
+}

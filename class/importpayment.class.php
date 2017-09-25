@@ -57,27 +57,58 @@ class TImportPayment extends TObjetStd
 		return $TData;
 	}
 	
-	public static function getSelectValues()
+	public static function getTFieldPossible()
+	{
+		return array_merge(self::getTFieldRequired(), self::getTFieldOptional());
+	}
+
+	public static function getTFieldRequired()
 	{
 		global $langs;
 		
-		$TValue = array(
+		return array(
+			'ref_facture' => $langs->transnoentities('InvoiceRef')
+			,'total_ttc' => $langs->transnoentities('PaymentAmount')
+		);
+	}
+
+	public static function getTFieldOptional()
+	{
+		global $langs;
+		
+		return array(
 			'ignored' => $langs->transnoentities('Ignored')
-			,'ref_facture' => $langs->transnoentities('Invoice')
-			//,'fk_soc' => $langs->transnoentities('Company') // TODO à ignorer si un fk_soc existe en param global
-			//,'datep' => $langs->transnoentities('PaymentDate') // TODO à ignorer si une date de paiement existe en param global
 			,'num_paiement' => $langs->transnoentities('Numero').' <em>('.$langs->transnoentities("ChequeOrTransferNumber").')</em>'
 			,'chqemetteur' => $langs->transnoentities('CheckTransmitter').' <em>('.$langs->transnoentities("ChequeMaker").')</em>'
 			,'chqbank' => $langs->transnoentities('Bank').' <em>('.$langs->transnoentities("ChequeBank").')</em>'
 			,'comment1' => $langs->transnoentities('Comment1')
-//			,'comment2' => $langs->transnoentities('Comment2')
-//			,'comment3' => $langs->transnoentities('Comment3')
-//			,'comment4' => $langs->transnoentities('Comment4')
+			,'comment2' => $langs->transnoentities('Comment2')
+			,'comment3' => $langs->transnoentities('Comment3')
+			,'comment4' => $langs->transnoentities('Comment4')
+			,'fk_soc' => $langs->transnoentities('Company') // TODO à ignorer si un fk_soc existe en param global
+			,'datep' => $langs->transnoentities('PaymentDate') // TODO à ignorer si une date de paiement existe en param global
 		);
+	}
+	
+	public static function getTFieldOrder()
+	{
+		global $conf;
 		
-		return $TValue;
+		if (!empty($conf->global->IMPORTPAYMENT_TFIELD_ORDER)) return unserialize($conf->global->IMPORTPAYMENT_TFIELD_ORDER);
+		else return self::getDefaultTFieldOrder();
 	}
 
+	public static function getDefaultTFieldOrder()
+	{
+		return array(
+			'ref_facture'
+			,'num_paiement'
+			,'chqemetteur'
+			,'chqbank'
+			,'total_ttc'
+			,'comment1'
+		);
+	}
 
 	/**
 	 * Check for UTF-8 compatibility
