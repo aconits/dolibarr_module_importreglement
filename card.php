@@ -165,7 +165,7 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 	print $TBS->render('tpl/card.tpl.php'
 		,array(
 			'TData' => $TData
-			,'TOption' => TImportPayment::getSelectValues()
+			,'TFieldOrder' => TImportPayment::getTFieldOrder(true)
 		) // Block
 		,array(
 			'object'=>$object

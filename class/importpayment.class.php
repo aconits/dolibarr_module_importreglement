@@ -77,7 +77,7 @@ class TImportPayment extends TObjetStd
 		global $langs;
 		
 		return array(
-			'ignored' => $langs->transnoentities('Ignored')
+			'ignored' => $langs->transnoentities('ImportPaymentIgnoredLine')
 			,'num_paiement' => $langs->transnoentities('Numero').' <em>('.$langs->transnoentities("ChequeOrTransferNumber").')</em>'
 			,'chqemetteur' => $langs->transnoentities('CheckTransmitter').' <em>('.$langs->transnoentities("ChequeMaker").')</em>'
 			,'chqbank' => $langs->transnoentities('Bank').' <em>('.$langs->transnoentities("ChequeBank").')</em>'
@@ -90,12 +90,26 @@ class TImportPayment extends TObjetStd
 		);
 	}
 	
-	public static function getTFieldOrder()
+	public static function getTFieldOrder($withLabel=false)
 	{
 		global $conf;
 		
-		if (!empty($conf->global->IMPORTPAYMENT_TFIELD_ORDER)) return unserialize($conf->global->IMPORTPAYMENT_TFIELD_ORDER);
-		else return self::getDefaultTFieldOrder();
+		$TRes = array();
+		
+		if (!empty($conf->global->IMPORTPAYMENT_TFIELD_ORDER)) $TRes = unserialize($conf->global->IMPORTPAYMENT_TFIELD_ORDER);
+		else $TRes = self::getDefaultTFieldOrder();
+		
+		if ($withLabel)
+		{
+			$TLabel = self::getTFieldPossible();
+			foreach ($TRes as $k => &$val)
+			{
+				$val = array('label' => $TLabel[$val], 'field' => $val);
+			}
+		}
+		
+		
+		return $TRes;
 	}
 
 	public static function getDefaultTFieldOrder()

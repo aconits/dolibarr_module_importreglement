@@ -37,3 +37,4 @@ IMPORTPAYMENT_DEFAULT_ENCLOSURE=Caractère d'encadrement des chaines
 ImportPaymentErrorOneOrMoreFieldsRequiredNotUsed=Erreur dans la configuration des colonnes, une ou plusieurs colonnes obligatoires ne sont pas renseignées : <u>%s</u>
 ImportPaymentFieldsOrder=Ordre des champs contenu dans le fichier d'import
 ImportPaymentFieldsAvailable=Liste des champs disponibles
+ImportPaymentIgnoredLine=Ignorer
