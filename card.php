@@ -38,9 +38,9 @@ switch ($action) {
 	case 'gotostep2':
 		$datep = dol_mktime(12, 0, 0, GETPOST('pmonth'), GETPOST('pday'), GETPOST('pyear'));
 		$fk_c_paiement = GETPOST('fk_c_paiement', 'int');
-		$fk_bank_account = GETPOST('fk_bank_account');
+		$fk_bank_account = GETPOST('fk_bank_account', 'int');
 		
-		$nb_ignore = GETPOST('nb_ignore');
+		$nb_ignore = GETPOST('nb_ignore', 'int');
 		if (empty($nb_ignore) && $nb_ignore !== 0) $nb_ignore = $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE;
 		$delimiter = GETPOST('delimiter');
 		if (empty($delimiter)) $delimiter = $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER;
@@ -56,6 +56,22 @@ switch ($action) {
 		_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure);
 		exit;
 		break;
+	case 'gotostep3':
+		$datep = GETPOST('fk_bank_account', 'int');
+		$fk_c_paiement = GETPOST('fk_c_paiement', 'int');
+		$fk_bank_account = GETPOST('fk_bank_account', 'int');
+		$nb_ignore = GETPOST('nb_ignore', 'int');
+		$delimiter = GETPOST('delimiter');
+		$enclosure = GETPOST('enclosure');
+		
+		$TFieldOrder = GETPOST('TField', 'array');
+		if (empty($TFieldOrder)) $TFieldOrder = TImportPayment::getTFieldOrder();
+		
+		$TData = TImportPayment::getFormatedData($TFieldOrder, GETPOST('TLineIndex', 'array'), GETPOST('TData', 'array'));
+		
+		$TError = TImportPayment::setPayments($TData, true);
+		break;
+	
 	case 'confirm_import':
 		
 		header('Location: '.dol_buildpath('/importpayment/card.php', 1));
@@ -158,12 +174,12 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
 				,'colspan' => !empty($TData[0]) ? count($TData[0])+1 : 1
 				,'showInputFile' => ''
-				,'showNbIgnore' => $nb_ignore
-				,'showInputPaymentDate' => dol_print_date($datep, 'day')
-				,'showDelimiter' => $delimiter
-				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label']
-				,'showEnclosure' => $enclosure
-				,'showInputAccountToCredit' => $account->label
+				,'showNbIgnore' => $nb_ignore.' '.$formcore->hidden('nb_ignore', $nb_ignore)
+				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)
+				,'showDelimiter' => $delimiter.' '.$formcore->hidden('delimiter', $delimiter)
+				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label'].' '.$formcore->hidden('fk_c_paiement', $fk_c_paiement)
+				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', $enclosure)
+				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
 			)
 			,'langs' => $langs
 			,'conf' => $conf

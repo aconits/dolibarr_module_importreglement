@@ -53,12 +53,18 @@
 			<tr class="impair">
 				<td><input class="TLineIndex" type="checkbox" name="TLineIndex[]" value="[TData.$]"/></td>
 				<!-- [TData.$;block=tr;sub1] -->
-				<td field="[TData_sub1.$]">[TData_sub1.val;block=td; strconv=no]</td>
+				<td field="[TData_sub1.$]">
+					[TData_sub1.val;block=td; strconv=no]
+					<input type="hidden" name="TData[[TData.$]][]" value="[TData_sub1.val]" />
+				</td>
 			</tr>
 			<tr class="pair">
 				<td><input class="TLineIndex" type="checkbox" name="TLineIndex[]" value="[TData.$]"/></td>
 				<!-- [TData.$;block=tr;sub1] -->
-				<td field="[TData_sub1.$]">[TData_sub1.val;block=td; strconv=no]</td>
+				<td field="[TData_sub1.$]">
+					[TData_sub1.val;block=td; strconv=no]
+					<input type="hidden" name="TData[[TData.$]][]" value="[TData_sub1.val]" />
+				</td>
 			</tr>
 		</tbody>
 	</table>
@@ -69,5 +75,5 @@
 
 
 <div class="center">
-	<input class="button" value="[langs.transnoentities(ParseFile)]" type="submit">
+	<input type="submit" class="button" value="[langs.transnoentities(SubmitLabel_[view.action])]" />
 </div>

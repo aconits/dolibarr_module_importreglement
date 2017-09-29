@@ -25,8 +25,9 @@ PaymentDate=Date de règlement
 NbIgnore=Nombre de lignes à ignorer
 Delimiter=Caractère de séparation
 Enclosure=Caractère d'encadrement
-ParseFile=Lecture du fichier
 ImportPaymentDataParsed=Analyse des données
+SubmitLabel_gotostep2=Lecture du fichier
+SubmitLabel_gotostep3=Simuler l'import
 
 
 # CONFIGURATION
