@@ -1,8 +1,9 @@
 <!-- Un début de <div> existe de par la fonction dol_fiche_head() -->
-	<div class="fichecenter">
-		<input type="hidden" name="action" value="[view.action]" />
-		<input type="hidden" name="step" value="[view.step]" />
+	<input type="hidden" name="newtoken" value="[var._SESSION.newtoken]" />
+	<input type="hidden" name="action" value="[view.action]" />
+	<input type="hidden" name="step" value="[view.step]" />
 		
+	<div class="fichecenter">
 		<table width="100%" class="border tableforfield">
 			<tbody>
 				<tr class="file">
@@ -40,9 +41,14 @@
 				<th colspan="[view.colspan;noerr]">[langs.transnoentities(ImportPaymentDataParsed)]</th>
 			</tr>
 			<tr class="liste_titre">
-				<th><input type="checkbox" title="[langs.transnoentities(ToImport)]" onclick="$('.TLineIndex').attr('checked', $(this).is(':checked'));" /></th>
-				<!-- [TFieldOrder.$;block=tr;sub1] -->
-				<th class="[TFieldOrder_sub1.field;block=th]">[TFieldOrder_sub1.val;strconv=no]</th>
+				<th><input type="checkbox" title="[langs.transnoentities(ToImport)]" onclick="$('.TLineIndex').prop('checked', $(this).is(':checked'));" /></th>
+				
+				<th class="[TFieldOrder.field;block=th]">
+					[onshow;block=begin;when [conf.global.IMPORTPAYMENT_REORDER_ALLOWED;noerr]==1]
+						<input type="hidden" name="TField[]" value="[TFieldOrder.field]" />
+					[onshow;block=end]
+					[TFieldOrder.label;strconv=no]
+				</th>
 			</tr>
 			<tr class="impair">
 				<td><input class="TLineIndex" type="checkbox" name="TLineIndex[]" value="[TData.$]"/></td>

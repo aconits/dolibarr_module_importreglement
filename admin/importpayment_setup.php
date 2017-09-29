@@ -221,7 +221,6 @@ foreach ($TFieldPossible as $field => $label)
 print '</ul>';
 print '</fieldset>';
 
-print '<input type="button" id="add_column" value="add" />';
 print '<script type="text/javascript"> IMPORPAYMENT_TFIELD = '.json_encode($form->selectarray('TField[]', $TField, '', 0, 0, 0, '', 0, 0, 0, '', '', 0, '', 0, 1)).'; </script>';
 
 llxFooter();
