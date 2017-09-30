@@ -54,7 +54,7 @@ switch ($action) {
 		// TODO if error or required field empty then goto step1
 		
 		_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure);
-		exit;
+		
 		break;
 	case 'gotostep3':
 		$datep = GETPOST('fk_bank_account', 'int');
@@ -67,9 +67,12 @@ switch ($action) {
 		$TFieldOrder = GETPOST('TField', 'array');
 		if (empty($TFieldOrder)) $TFieldOrder = TImportPayment::getTFieldOrder();
 		
+		// TODO remove static calls by standard methods
 		$TData = TImportPayment::getFormatedData($TFieldOrder, GETPOST('TLineIndex', 'array'), GETPOST('TData', 'array'));
+		$TError = TImportPayment::setPayments($TData, $datep, $fk_c_paiement, $fk_bank_account, true);
 		
-		$TError = TImportPayment::setPayments($TData, true);
+		_step3($object, $TError, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure);
+		
 		break;
 	
 	case 'confirm_import':
@@ -172,7 +175,58 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 				'action' => 'gotostep3'
 				,'step' => 2
 				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
-				,'colspan' => !empty($TData[0]) ? count($TData[0])+1 : 1
+				,'showInputFile' => ''
+				,'showNbIgnore' => $nb_ignore.' '.$formcore->hidden('nb_ignore', $nb_ignore)
+				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)
+				,'showDelimiter' => $delimiter.' '.$formcore->hidden('delimiter', $delimiter)
+				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label'].' '.$formcore->hidden('fk_c_paiement', $fk_c_paiement)
+				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', $enclosure)
+				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
+			)
+			,'langs' => $langs
+			,'conf' => $conf
+		)
+	);
+	
+	echo $formcore->end_form();
+	
+	_footer();
+}
+
+function _step3(&$object, &$TError, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure)
+{
+	global $db,$langs,$conf;
+	
+	_header($object);
+	
+var_dump('TODO : revoir la fonction _step3()');exit;
+	
+	$TBS=new TTemplateTBS();
+	$TBS->TBS->protect=false;
+	$TBS->TBS->noerr=true;
+	
+	$form = new Form($db);
+	$form->load_cache_types_paiements();
+	
+	$formcore = new TFormCore;
+	$formcore->Set_typeaff('edit');
+	
+	$account = new Account($db);
+	$account->fetch($fk_bank_account);
+	
+	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
+	
+	print $TBS->render('tpl/card.tpl.php'
+		,array(
+			'TData' => $TData
+			,'TFieldOrder' => TImportPayment::getTFieldOrder(true)
+		) // Block
+		,array(
+			'object'=>$object
+			,'view' => array(
+				'action' => 'gotostep4'
+				,'step' => 3
+				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
 				,'showInputFile' => ''
 				,'showNbIgnore' => $nb_ignore.' '.$formcore->hidden('nb_ignore', $nb_ignore)
 				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)

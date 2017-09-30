@@ -158,9 +158,10 @@ class TImportPayment extends TObjetStd
 		return $TRes;
 	}
 
-	public static function setPayments(&$TData, $simulation=false, $closepaidinvoices=0)
+	public static function setPayments(&$TData, $datep, $fk_c_paiement, $fk_bank_account, $simulation=false, $closepaidinvoices=0)
 	{
 		global $db, $user;
+		require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 		require_once DOL_DOCUMENT_ROOT.'/compta/paiement/class/paiement.class.php';
 		require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 		
@@ -170,30 +171,36 @@ class TImportPayment extends TObjetStd
 		
 		foreach ($TData as $Tab)
 		{
-			// Creation of payment line
-//			$paiement = new Paiement($db);
-//			$paiement->datepaye     = $datepaye;
-//			$paiement->amounts      = $amounts;   // Array with all payments dispatching with invoice id
-//			$paiement->multicurrency_amounts = $multicurrency_amounts;   // Array with all payments dispatching
-//			$paiement->paiementid   = dol_getIdFromCode($db,GETPOST('paiementcode'),'c_paiement');
-//			$paiement->num_paiement = GETPOST('num_paiement');
-//			$paiement->note         = GETPOST('comment');
-//			
-//			$paiement_id = $paiement->create($user, $closepaidinvoices);
-//			if ($paiement_id < 0)
-//	        {
-//	            setEventMessages($paiement->error, $paiement->errors, 'errors');
-//	            $error++;
-//	        }
 			
-//			$label='(CustomerInvoicePayment)';
-//	    	if (GETPOST('type') == Facture::TYPE_CREDIT_NOTE) $label='(CustomerInvoicePaymentBack)';  // Refund of a credit note
-//	        $result=$paiement->addPaymentToBank($user,'payment',$label,GETPOST('accountid'),GETPOST('chqemetteur'),GETPOST('chqbank'));
-//			if ($result < 0)
-//	        {
-//	            setEventMessages($paiement->error, $paiement->errors, 'errors');
-//	            $error++;
-//	        }
+			// Creation of payment line
+			$paiement = new Paiement($db);
+			$paiement->datepaye = $datep;
+			$paiement->amounts = array($Tab['ref_facture']->id => $Tab['total_ttc']);   // Array with all payments dispatching with invoice id
+//			$paiement->multicurrency_amounts = array();   // Array with all payments dispatching
+			$paiement->paiementid = $fk_c_paiement; //dol_getIdFromCode($db,GETPOST('paiementcode'),'c_paiement');
+			$paiement->num_paiement = $Tab['num_paiement'];
+			$paiement->note = $Tab['comment1']."\n";
+			$paiement->note .= $Tab['comment2']."\n";
+			$paiement->note .= $Tab['comment3']."\n";
+			$paiement->note .= $Tab['comment4']."\n";
+
+			$paiement->note = preg_replace('/^\n/m', '', $paiement->note);
+			
+			$paiement_id = $paiement->create($user, $closepaidinvoices);
+			if ($paiement_id < 0)
+	        {
+	            $TError[] = $paiement->error;
+	        }
+			else
+			{
+				$label='(CustomerInvoicePayment)';
+				if ($Tab['ref_facture']->type == Facture::TYPE_CREDIT_NOTE) $label='(CustomerInvoicePaymentBack)';  // Refund of a credit note
+				$result=$paiement->addPaymentToBank($user, 'payment', $label, $fk_bank_account, $Tab['chqemetteur'], $Tab['chqbank']);
+				if ($result < 0)
+				{
+					$TError[] = $paiement->error;
+				}	
+			}
 		}
 		
 		if ($simulation) $db->rollback();
