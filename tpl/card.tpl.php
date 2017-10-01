@@ -41,7 +41,9 @@
 				<th colspan="[view.colspan;noerr]">[langs.transnoentities(ImportPaymentDataParsed)]</th>
 			</tr>
 			<tr class="liste_titre">
-				<th><input type="checkbox" title="[langs.transnoentities(ToImport)]" onclick="$('.TLineIndex').prop('checked', $(this).is(':checked'));" /></th>
+				[onshow;block=begin;when [view.step]==2]
+					<th><input type="checkbox" title="[langs.transnoentities(ImportPaymentCheckboxToImport)]" onclick="$('.TLineIndex').prop('checked', $(this).is(':checked'));" /></th>
+				[onshow;block=end]
 				
 				<th class="[TFieldOrder.field;block=th]">
 					[onshow;block=begin;when [conf.global.IMPORTPAYMENT_REORDER_ALLOWED;noerr]==1]
@@ -51,7 +53,9 @@
 				</th>
 			</tr>
 			<tr class="impair">
-				<td><input class="TLineIndex" type="checkbox" name="TLineIndex[]" value="[TData.$]"/></td>
+				[onshow;block=begin;when [view.step]==2]
+					<td><input class="TLineIndex" type="checkbox" name="TLineIndex[]" value="[TData.$]"/></td>
+				[onshow;block=end]
 				<!-- [TData.$;block=tr;sub1] -->
 				<td field="[TData_sub1.$]">
 					[TData_sub1.val;block=td; strconv=no]
@@ -59,7 +63,9 @@
 				</td>
 			</tr>
 			<tr class="pair">
-				<td><input class="TLineIndex" type="checkbox" name="TLineIndex[]" value="[TData.$]"/></td>
+				[onshow;block=begin;when [view.step]==2]
+					<td><input class="TLineIndex" type="checkbox" name="TLineIndex[]" value="[TData.$]"/></td>
+				[onshow;block=end]
 				<!-- [TData.$;block=tr;sub1] -->
 				<td field="[TData_sub1.$]">
 					[TData_sub1.val;block=td; strconv=no]

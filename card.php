@@ -131,7 +131,7 @@ function _step1(&$object)
 				,'showInputPaymentDate' => $form->select_date($datep, 'p', 0, 0, 0, '', 1, 1, 1)
 				,'showDelimiter' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'delimiter', $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER, 5) : $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER
 				,'showInputPaymentMode' => $selectPaymentMode
-				,'showEnclosure' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE, 5) : $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE
+				,'showEnclosure' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', dol_escape_htmltag($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE), 5) : dol_escape_htmltag($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)
 				,'showInputAccountToCredit' => $selectAccountToCredit
 			)
 			,'langs' => $langs
@@ -164,23 +164,25 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 	
 	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
 	
+	$TFieldOrder = TImportPayment::getTFieldOrder(true);
 	print $TBS->render('tpl/card.tpl.php'
 		,array(
 			'TData' => $TData
-			,'TFieldOrder' => TImportPayment::getTFieldOrder(true)
+			,'TFieldOrder' => $TFieldOrder
 		) // Block
 		,array(
 			'object'=>$object
 			,'view' => array(
 				'action' => 'gotostep3'
 				,'step' => 2
+				,'colspan' => count($TFieldOrder)+1
 				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
 				,'showInputFile' => ''
 				,'showNbIgnore' => $nb_ignore.' '.$formcore->hidden('nb_ignore', $nb_ignore)
 				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)
 				,'showDelimiter' => $delimiter.' '.$formcore->hidden('delimiter', $delimiter)
 				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label'].' '.$formcore->hidden('fk_c_paiement', $fk_c_paiement)
-				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', $enclosure)
+				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', dol_escape_htmltag($enclosure))
 				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
 			)
 			,'langs' => $langs
@@ -199,8 +201,6 @@ function _step3(&$object, &$TError, &$TData, $datep, $fk_c_paiement, $fk_bank_ac
 	
 	_header($object);
 	
-var_dump('TODO : revoir la fonction _step3()');exit;
-	
 	$TBS=new TTemplateTBS();
 	$TBS->TBS->protect=false;
 	$TBS->TBS->noerr=true;
@@ -216,23 +216,25 @@ var_dump('TODO : revoir la fonction _step3()');exit;
 	
 	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
 	
+	$TFieldOrder = TImportPayment::getTFieldOrder(true);
 	print $TBS->render('tpl/card.tpl.php'
 		,array(
 			'TData' => $TData
-			,'TFieldOrder' => TImportPayment::getTFieldOrder(true)
+			,'TFieldOrder' => $TFieldOrder
 		) // Block
 		,array(
 			'object'=>$object
 			,'view' => array(
 				'action' => 'gotostep4'
 				,'step' => 3
+				,'colspan' => count($TFieldOrder)
 				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
 				,'showInputFile' => ''
 				,'showNbIgnore' => $nb_ignore.' '.$formcore->hidden('nb_ignore', $nb_ignore)
 				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)
 				,'showDelimiter' => $delimiter.' '.$formcore->hidden('delimiter', $delimiter)
 				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label'].' '.$formcore->hidden('fk_c_paiement', $fk_c_paiement)
-				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', $enclosure)
+				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', dol_escape_htmltag($enclosure))
 				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
 			)
 			,'langs' => $langs

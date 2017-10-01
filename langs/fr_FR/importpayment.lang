@@ -26,6 +26,7 @@ NbIgnore=Nombre de lignes à ignorer
 Delimiter=Caractère de séparation
 Enclosure=Caractère d'encadrement
 ImportPaymentDataParsed=Analyse des données
+ImportPaymentCheckboxToImport=Ligne à importer
 SubmitLabel_gotostep2=Lecture du fichier
 SubmitLabel_gotostep3=Simuler l'import
 
