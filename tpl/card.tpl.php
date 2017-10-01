@@ -2,7 +2,11 @@
 	<input type="hidden" name="newtoken" value="[var._SESSION.newtoken]" />
 	<input type="hidden" name="action" value="[view.action]" />
 	<input type="hidden" name="step" value="[view.step]" />
-		
+	
+	<div class="error">
+		<p>[TError.val;block=p;magnet=div]</p>
+	</div>
+	
 	<div class="fichecenter">
 		<table width="100%" class="border tableforfield">
 			<tbody>
@@ -52,14 +56,15 @@
 					[TFieldOrder.label;strconv=no]
 				</th>
 			</tr>
+
 			<tr class="impair">
 				[onshow;block=begin;when [view.step]==2]
 					<td><input class="TLineIndex" type="checkbox" name="TLineIndex[]" value="[TData.$]"/></td>
 				[onshow;block=end]
 				<!-- [TData.$;block=tr;sub1] -->
 				<td field="[TData_sub1.$]">
-					[TData_sub1.val;block=td; strconv=no]
-					<input type="hidden" name="TData[[TData.$]][]" value="[TData_sub1.val]" />
+					[TData_sub1.val;block=td;fieldname=[TData_sub1.$];onformat=getValue;strconv=no]
+					<input type="hidden" name="TData[[TData.$]][]" value="[TData_sub1.val;onformat=getSanitizedValue]" />
 				</td>
 			</tr>
 			<tr class="pair">
@@ -68,10 +73,11 @@
 				[onshow;block=end]
 				<!-- [TData.$;block=tr;sub1] -->
 				<td field="[TData_sub1.$]">
-					[TData_sub1.val;block=td; strconv=no]
-					<input type="hidden" name="TData[[TData.$]][]" value="[TData_sub1.val]" />
+					[TData_sub1.val;block=td;fieldname=[TData_sub1.$];onformat=getValue;strconv=no]
+					<input type="hidden" name="TData[[TData.$]][]" value="[TData_sub1.val;onformat=getSanitizedValue]" />
 				</td>
 			</tr>
+
 		</tbody>
 	</table>
 	[onshow;block=end]

@@ -108,7 +108,6 @@ class TImportPayment extends TObjetStd
 			}
 		}
 		
-		
 		return $TRes;
 	}
 
@@ -140,8 +139,12 @@ class TImportPayment extends TObjetStd
 				switch ($field_name) {
 					case 'ref_facture':
 						$facture = new Facture($db);
-						if ($facture->fetch(null, $value) > 0) $value = $facture;
-						else $value = '<span class="errors">'.$value.'</span>';
+						if ($facture->fetch(null, $value) > 0)
+						{
+							$facture->val = $facture;
+							$value = $facture;
+						}
+						else $value = '<span class="error">'.$value.'</span>';
 						
 						break;
 					
@@ -151,38 +154,44 @@ class TImportPayment extends TObjetStd
 						break;
 				}
 				
-				$TRes[$i][$field_name] = $value;
+				$TRes[$i][] = $value;
 			}
 		}
 		
 		return $TRes;
 	}
 
-	public static function setPayments(&$TData, $datep, $fk_c_paiement, $fk_bank_account, $simulation=false, $closepaidinvoices=0)
+	public static function setPayments(&$TData, &$TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, $simulation=false, $closepaidinvoices=0)
 	{
-		global $db, $user;
+		global $db, $user, $langs;
 		require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 		require_once DOL_DOCUMENT_ROOT.'/compta/paiement/class/paiement.class.php';
 		require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 		
 		$TError = array();
+		$TOrderFieldName = array_flip($TFieldOrder);
 		
 		$db->begin();
 		
 		foreach ($TData as $Tab)
 		{
+			if (empty($Tab[$TOrderFieldName['ref_facture']]->id))
+			{
+				$TError[] = $langs->transnoentities('ImportPaymentFactureNotFound', strip_tags($Tab[$TOrderFieldName['ref_facture']]));
+				continue;
+			}
 			
 			// Creation of payment line
 			$paiement = new Paiement($db);
 			$paiement->datepaye = $datep;
-			$paiement->amounts = array($Tab['ref_facture']->id => $Tab['total_ttc']);   // Array with all payments dispatching with invoice id
+			$paiement->amounts = array($Tab[$TOrderFieldName['ref_facture']]->id => $Tab[$TOrderFieldName['total_ttc']]);   // Array with all payments dispatching with invoice id
 //			$paiement->multicurrency_amounts = array();   // Array with all payments dispatching
 			$paiement->paiementid = $fk_c_paiement; //dol_getIdFromCode($db,GETPOST('paiementcode'),'c_paiement');
-			$paiement->num_paiement = $Tab['num_paiement'];
-			$paiement->note = $Tab['comment1']."\n";
-			$paiement->note .= $Tab['comment2']."\n";
-			$paiement->note .= $Tab['comment3']."\n";
-			$paiement->note .= $Tab['comment4']."\n";
+			$paiement->num_paiement = $Tab[$TOrderFieldName['num_paiement']];
+			$paiement->note = $Tab[$TOrderFieldName['comment1']]."\n";
+			$paiement->note .= $Tab[$TOrderFieldName['comment2']]."\n";
+			$paiement->note .= $Tab[$TOrderFieldName['comment3']]."\n";
+			$paiement->note .= $Tab[$TOrderFieldName['comment4']]."\n";
 
 			$paiement->note = preg_replace('/^\n/m', '', $paiement->note);
 			
@@ -195,7 +204,7 @@ class TImportPayment extends TObjetStd
 			{
 				$label='(CustomerInvoicePayment)';
 				if ($Tab['ref_facture']->type == Facture::TYPE_CREDIT_NOTE) $label='(CustomerInvoicePaymentBack)';  // Refund of a credit note
-				$result=$paiement->addPaymentToBank($user, 'payment', $label, $fk_bank_account, $Tab['chqemetteur'], $Tab['chqbank']);
+				$result=$paiement->addPaymentToBank($user, 'payment', $label, $fk_bank_account, $Tab[$TOrderFieldName['chqemetteur']], $Tab[$TOrderFieldName['chqbank']]);
 				if ($result < 0)
 				{
 					$TError[] = $paiement->error;

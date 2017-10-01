@@ -29,7 +29,8 @@ ImportPaymentDataParsed=Analyse des données
 ImportPaymentCheckboxToImport=Ligne à importer
 SubmitLabel_gotostep2=Lecture du fichier
 SubmitLabel_gotostep3=Simuler l'import
-
+SubmitLabel_gotostep4=Confirmer l'import
+ImportPaymentFactureNotFound=Facture [%s] inexistante dans le système
 
 # CONFIGURATION
 IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT=Permet de redéfinir les configurations par défaut concernant le traitement du fichier via le formulaire d'import
