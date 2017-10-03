@@ -41,7 +41,7 @@ switch ($action) {
 		$fk_bank_account = GETPOST('fk_bank_account', 'int');
 		
 		$nb_ignore = GETPOST('nb_ignore', 'int');
-		if (empty($nb_ignore) && $nb_ignore !== 0) $nb_ignore = $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE;
+		if (empty($nb_ignore) && $nb_ignore != 0) $nb_ignore = $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE;
 		$delimiter = GETPOST('delimiter');
 		if (empty($delimiter)) $delimiter = $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER;
 		$enclosure = GETPOST('enclosure');
@@ -77,6 +77,23 @@ switch ($action) {
 		break;
 	
 	case 'confirm_import':
+		
+		$datep = GETPOST('datep');
+		$fk_c_paiement = GETPOST('fk_c_paiement');
+		$fk_bank_account = GETPOST('fk_bank_account');
+		var_dump(GETPOST('fk_bank_account'));
+		exit;
+		
+		$TFieldOrder = GETPOST('TField', 'array');
+		if (empty($TFieldOrder)) $TFieldOrder = TImportPayment::getTFieldOrder();
+		
+		$TData = GETPOST('TData', 'array');
+		$TData = TImportPayment::getFormatedData($TFieldOrder, array_keys($TData), $TData);
+		
+		$db->begin();
+		$TError = TImportPayment::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, true);
+		$db->rollback();
+		
 		
 		header('Location: '.dol_buildpath('/importpayment/card.php', 1));
 		exit;
@@ -231,7 +248,7 @@ function _step3(&$object, &$TError, &$TData, $datep, $fk_c_paiement, $fk_bank_ac
 		,array(
 			'object'=>$object
 			,'view' => array(
-				'action' => 'gotostep4'
+				'action' => 'confirm_import'
 				,'step' => 3
 				,'colspan' => count($TFieldOrder)
 				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
