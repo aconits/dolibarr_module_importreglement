@@ -77,12 +77,10 @@ switch ($action) {
 		break;
 	
 	case 'confirm_import':
-		
 		$datep = GETPOST('datep');
 		$fk_c_paiement = GETPOST('fk_c_paiement');
 		$fk_bank_account = GETPOST('fk_bank_account');
-		var_dump(GETPOST('fk_bank_account'));
-		exit;
+
 		
 		$TFieldOrder = GETPOST('TField', 'array');
 		if (empty($TFieldOrder)) $TFieldOrder = TImportPayment::getTFieldOrder();
@@ -90,10 +88,10 @@ switch ($action) {
 		$TData = GETPOST('TData', 'array');
 		$TData = TImportPayment::getFormatedData($TFieldOrder, array_keys($TData), $TData);
 		
-		$db->begin();
-		$TError = TImportPayment::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, true);
-		$db->rollback();
-		
+		$TError = TImportPayment::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, false, GETPOST('closepaidinvoices', 'int'));
+
+		if (empty($TError)) setEventMessages($langs->trans('ImportPaymentSuccess'));
+		else setEventMessages(null, $TError, 'errors');
 		
 		header('Location: '.dol_buildpath('/importpayment/card.php', 1));
 		exit;
