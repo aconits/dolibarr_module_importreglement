@@ -24,12 +24,21 @@ class TImportPayment extends TObjetStd
 		$this->set_table(MAIN_DB_PREFIX.'importpayment');
 		
 		$this->add_champs('entity,fk_user_author,fk_c_paiement,fk_bank_account', array('type' => 'integer'));
-		$this->add_champs('TData', array('type' => 'text'));
+		$this->add_champs('datep', array('type' => 'date'));
+		$this->add_champs('TFieldOrder,TDataCompressed', array('type' => 'text'));
 		
 		$this->_init_vars();
 		$this->start();
 		
 		$this->entity = $conf->entity;
+	}
+	
+	public function load(&$PDOdb,$id,$loadChild=true)
+	{
+		parent::load($PDOdb, $id, $loadChild);
+		
+		$this->TFieldOrder = unserialize($this->TFieldOrder);
+		$this->TDataCompressed = unserialize(gzuncompress(base64_decode($this->TDataCompressed)));
 	}
 	
 	public function parseFile($filename, $nb_ignore=0, $delimiter=';', $enclosure='"')

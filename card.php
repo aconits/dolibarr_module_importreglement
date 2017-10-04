@@ -118,7 +118,21 @@ switch ($action) {
 		
 		$TError = TImportPayment::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, false, GETPOST('closepaidinvoices', 'int'));
 
-		if (empty($TError)) setEventMessages($langs->trans('ImportPaymentSuccess'));
+		if (empty($TError))
+		{
+			setEventMessages($langs->trans('ImportPaymentSuccess'));
+			
+			$object->entity = $conf->entity;
+			$object->datep = $datep;
+			$object->fk_user_author = $user->id;
+			$object->fk_c_paiement = $fk_c_paiement;
+			$object->fk_bank_account = $fk_bank_account;
+			$object->TFieldOrder = serialize($TFieldOrder);
+			$object->TDataCompressed = base64_encode(gzcompress(serialize($TData)));
+				
+			$PDOdb = new TPDOdb;
+			$object->save($PDOdb);
+		}
 		else setEventMessages(null, $TError, 'errors');
 		
 		header('Location: '.dol_buildpath('/importpayment/card.php', 1));
