@@ -267,7 +267,7 @@ class TImportPayment extends TObjetStd
 		// You could also just return the original string.
 		trigger_error(
 			'Cannot convert string to UTF-8 in file '
-			.__FILE__.', line '.__LINE__.'!', E_USER_ERROR
+			.__FILE__.', line '.__LINE__.'!', E_USER_WARNING
 		);
 	}
 

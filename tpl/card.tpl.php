@@ -2,10 +2,15 @@
 	<input type="hidden" name="newtoken" value="[var._SESSION.newtoken]" />
 	<input type="hidden" name="action" value="[view.action]" />
 	<input type="hidden" name="step" value="[view.step]" />
+	<textarea name="TDataCompressed" style="display:none;">[TDataCompressed]</textarea>
+	
 	
 	<div class="error">
-		<p>[TError.val;block=p;magnet=div]</p>
+		[TError;block=begin;magnet=div]
+		<p>[langs.transnoentities([TError.val;noerr]);strconv=no]</p>
+		[TError;block=end]
 	</div>
+	
 	
 	<div class="fichecenter">
 		<table width="100%" class="border tableforfield">

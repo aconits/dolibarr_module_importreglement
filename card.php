@@ -15,6 +15,8 @@ if(empty($user->rights->facture->paiement) || empty($user->rights->importpayment
 
 $langs->load('importpayment@importpayment');
 $langs->load('bills');
+$langs->load('errors');
+
 $action = GETPOST('action');
 $step = GETPOST('step', 'int');
 
@@ -40,13 +42,17 @@ switch ($action) {
 		$fk_c_paiement = GETPOST('fk_c_paiement', 'int');
 		$fk_bank_account = GETPOST('fk_bank_account', 'int');
 		
+		if (empty($datep)) { $error++; setEventMessage($langs->trans('ImportPaymentErrorDatePaymentEmpty'), 'errors'); }
+		if ($fk_c_paiement <= 0) { $error++; setEventMessage($langs->trans('ImportPaymentErrorPaymentTypeEmpty'), 'errors'); }
+		if ($fk_bank_account <= 0) { $error++; setEventMessage($langs->trans('ImportPaymentErrorBankAccountEmpty'), 'errors'); }
+		
 		$nb_ignore = GETPOST('nb_ignore', 'int');
-		if (empty($nb_ignore) && $nb_ignore != 0) $nb_ignore = $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE;
+		if (empty($nb_ignore) && strcmp($nb_ignore, 0) !== 0) $nb_ignore = $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE;
 		$delimiter = GETPOST('delimiter');
 		if (empty($delimiter)) $delimiter = $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER;
 		$enclosure = GETPOST('enclosure');
 		if (empty($enclosure)) $enclosure = $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE;
-		
+
 		$file = $_FILES['paymentfile'];
 		if ($file['error'] > 0)
 		{
@@ -58,7 +64,7 @@ switch ($action) {
 		if (empty($error))
 		{
 			$TData = $object->parseFile($file['tmp_name'], $nb_ignore, $delimiter, $enclosure);
-			_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $file['name']);
+			_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $file['name'], GETPOST('closepaidinvoices', 'int'));
 		}
 		else
 		{
@@ -75,15 +81,27 @@ switch ($action) {
 		$delimiter = GETPOST('delimiter');
 		$enclosure = GETPOST('enclosure');
 		$filename = GETPOST('filename');
+		$closepaidinvoices= GETPOST('closepaidinvoices', 'int');
 		
 		$TFieldOrder = GETPOST('TField', 'array');
 		if (empty($TFieldOrder)) $TFieldOrder = TImportPayment::getTFieldOrder();
 		
 		// TODO remove static calls by standard methods
 		$TData = TImportPayment::getFormatedData($TFieldOrder, GETPOST('TLineIndex', 'array'), GETPOST('TData', 'array'));
-		$TError = TImportPayment::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, true);
+		if (!empty($TData))
+		{
+			$TError = TImportPayment::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, true, $closepaidinvoices);
+		}
 		
-		_step3($object, $TError, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename);
+		if (empty($error) && empty($TError))
+		{
+			_step3($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices);
+		}
+		else
+		{
+			if (empty($TData)) setEventMessage($langs->trans('ImportPaymentEmptyData'), 'warnings');
+			_step2($object, unserialize(gzuncompress(base64_decode(GETPOST('TDataCompressed')))), $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, $TError);
+		}
 		
 		break;
 	
@@ -92,7 +110,6 @@ switch ($action) {
 		$fk_c_paiement = GETPOST('fk_c_paiement');
 		$fk_bank_account = GETPOST('fk_bank_account');
 
-		
 		$TFieldOrder = GETPOST('TField', 'array');
 		if (empty($TFieldOrder)) $TFieldOrder = TImportPayment::getTFieldOrder();
 		
@@ -163,18 +180,74 @@ function _step1(&$object)
 				,'showInputPaymentMode' => $selectPaymentMode
 				,'showEnclosure' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', dol_escape_htmltag((GETPOST('enclosure') !== '' ? GETPOST('enclosure') : $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)), 5) : dol_escape_htmltag($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)
 				,'showInputAccountToCredit' => $selectAccountToCredit
-				,'showClosePaidInvoices' => '<input type="checkbox" name="closepaidinvoices" value="1" '.(GETPOST('closepaidinvoices', 'int') == 1 ? 'checked="checked"' : '').' />'
+				,'showClosePaidInvoices' => $formcore->checkbox1('', 'closepaidinvoices', 1, (GETPOST('closepaidinvoices', 'int') == 1 ? true : false))
 			)
 			,'langs' => $langs
+			,'TDataCompressed' => ''
 		)
 	);
-
+ 
 	echo $formcore->end_form();
 	
 	_footer();
 }
 
-function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename)
+function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, $TError=array())
+{
+	global $db,$langs,$conf;
+	
+	_header($object);
+	
+	$TBS=new TTemplateTBS();
+	$TBS->TBS->protect=false;
+	$TBS->TBS->noerr=true;
+	
+	$form = new Form($db);
+	$form->load_cache_types_paiements();
+	
+	$formcore = new TFormCore;
+	$formcore->Set_typeaff('edit');
+	
+	$account = new Account($db);
+	$account->fetch($fk_bank_account);
+	
+	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
+	
+	$TFieldOrder = TImportPayment::getTFieldOrder(true);
+	print $TBS->render('tpl/card.tpl.php'
+		,array(
+			'TData' => $TData
+			,'TFieldOrder' => $TFieldOrder
+			,'TError' => array_unique($TError)
+		) // Block
+		,array(
+			'object'=>$object
+			,'view' => array(
+				'action' => 'gotostep3'
+				,'step' => 2
+				,'colspan' => count($TFieldOrder)+1
+				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
+				,'showInputFile' => $filename.' '.$formcore->hidden('filename', $filename)
+				,'showNbIgnore' => $nb_ignore.' '.$formcore->hidden('nb_ignore', $nb_ignore)
+				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)
+				,'showDelimiter' => $delimiter.' '.$formcore->hidden('delimiter', $delimiter)
+				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label'].' '.$formcore->hidden('fk_c_paiement', $fk_c_paiement)
+				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', dol_escape_htmltag($enclosure))
+				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
+				,'showClosePaidInvoices' => yn((bool) $closepaidinvoices, 1, 2).$formcore->hidden('closepaidinvoices', $closepaidinvoices)
+			)
+			,'langs' => $langs
+			,'conf' => $conf
+			,'TDataCompressed' => base64_encode(gzcompress(serialize($TData)))
+		)
+	);
+	
+	echo $formcore->end_form();
+	
+	_footer();
+}
+
+function _step3(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices)
 {
 	global $db,$langs,$conf;
 	
@@ -205,59 +278,6 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 		,array(
 			'object'=>$object
 			,'view' => array(
-				'action' => 'gotostep3'
-				,'step' => 2
-				,'colspan' => count($TFieldOrder)+1
-				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
-				,'showInputFile' => $filename.' '.$formcore->hidden('filename', $filename)
-				,'showNbIgnore' => $nb_ignore.' '.$formcore->hidden('nb_ignore', $nb_ignore)
-				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)
-				,'showDelimiter' => $delimiter.' '.$formcore->hidden('delimiter', $delimiter)
-				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label'].' '.$formcore->hidden('fk_c_paiement', $fk_c_paiement)
-				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', dol_escape_htmltag($enclosure))
-				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
-			)
-			,'langs' => $langs
-			,'conf' => $conf
-		)
-	);
-	
-	echo $formcore->end_form();
-	
-	_footer();
-}
-
-function _step3(&$object, &$TError, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename)
-{
-	global $db,$langs,$conf;
-	
-	_header($object);
-	
-	$TBS=new TTemplateTBS();
-	$TBS->TBS->protect=false;
-	$TBS->TBS->noerr=true;
-	
-	$form = new Form($db);
-	$form->load_cache_types_paiements();
-	
-	$formcore = new TFormCore;
-	$formcore->Set_typeaff('edit');
-	
-	$account = new Account($db);
-	$account->fetch($fk_bank_account);
-	
-	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
-	
-	$TFieldOrder = TImportPayment::getTFieldOrder(true);
-	print $TBS->render('tpl/card.tpl.php'
-		,array(
-			'TData' => $TData
-			,'TFieldOrder' => $TFieldOrder
-			,'TError' => $TError
-		) // Block
-		,array(
-			'object'=>$object
-			,'view' => array(
 				'action' => 'confirm_import'
 				,'step' => 3
 				,'colspan' => count($TFieldOrder)
@@ -269,9 +289,11 @@ function _step3(&$object, &$TError, &$TData, $datep, $fk_c_paiement, $fk_bank_ac
 				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label'].' '.$formcore->hidden('fk_c_paiement', $fk_c_paiement)
 				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', dol_escape_htmltag($enclosure))
 				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
+				,'showClosePaidInvoices' => yn((bool) $closepaidinvoices, 1, 2).$formcore->hidden('closepaidinvoices', $closepaidinvoices)
 			)
 			,'langs' => $langs
 			,'conf' => $conf
+			,'TDataCompressed' => ''
 		)
 	);
 	

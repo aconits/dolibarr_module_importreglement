@@ -10,7 +10,7 @@ ImportPayment=Import règlement
 
 # MENU
 TopMenuImportPayment=Import règlements
-LeftMenuImportPaymentCreate=Nouvelle import
+LeftMenuImportPaymentCreate=Nouvel import
 
 # LIST
 ImportPaymentList=Liste ImportPayment
@@ -19,8 +19,11 @@ NoImportPayment=(vide)
 # CARD
 NewImportPayment=Création ImportPayment
 ImportPaymentCard=Fiche ImportPayment
-ImportPaymentFileError=Erreur sur le fichier (code : %d)
+ImportPaymentFileError=Erreur : aucun fichier ou erreur lors de sa transmission (code : %d)
 ImportPaymentSuccess=Paiement(s) enregistré(s)
+ImportPaymentErrorDatePaymentEmpty=Erreur : veuillez saisir une date valide
+ImportPaymentErrorPaymentTypeEmpty=Erreur : veuillez saisir un mode de règlement
+ImportPaymentErrorBankAccountEmpty=Erreur : veuillez saisir un compte à créditer
 
 # CARD TPL
 FileToImport=Fichier à importer
