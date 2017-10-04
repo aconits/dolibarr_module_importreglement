@@ -13,24 +13,29 @@
 				<tr class="file">
 					<td width="15%"><span class="fieldrequired">[langs.transnoentities(FileToImport)]</span></td>
 					<td width="45%">[view.showInputFile;strconv=no]</td>
-					<td width="15%"><span class="fieldrequired">[langs.transnoentities(NbIgnore)]</span></td>
+					<td width="15%"><span class="">[langs.transnoentities(NbIgnore)]</span></td>
 					<td width="25%">[view.showNbIgnore;strconv=no]</td>
 				</tr>
 				<tr class="payment_date">
 					<td width="15%"><span class="fieldrequired">[langs.transnoentities(PaymentDate)]</span></td>
 					<td width="45%">[view.showInputPaymentDate;strconv=no]</td>
-					<td width="15%"><span class="fieldrequired">[langs.transnoentities(Delimiter)]</span></td>
+					<td width="15%"><span class="">[langs.transnoentities(Delimiter)]</span></td>
 					<td width="25%">[view.showDelimiter;strconv=no]</td>
 				</tr>
 				<tr class="fk_c_paiement">
 					<td width="15%"><span class="fieldrequired">[langs.transnoentities(PaymentMode)]</span></td>
 					<td width="45%">[view.showInputPaymentMode;strconv=no]</td>
-					<td width="15%"><span class="fieldrequired">[langs.transnoentities(Enclosure)]</span></td>
+					<td width="15%"><span class="">[langs.transnoentities(Enclosure)]</span></td>
 					<td width="25%">[view.showEnclosure;strconv=no]</td>
 				</tr>
 				<tr class="fk_bank_account">
 					<td width="15%"><span class="fieldrequired">[langs.transnoentities(AccountToCredit)]</span></td>
-					<td colspan="3">[view.showInputAccountToCredit;strconv=no]</td>
+					<td width="45%">[view.showInputAccountToCredit;strconv=no]</td>
+					<td width="15%"><span class="">[langs.transnoentities(ClosePaidInvoices)]</span></td>
+					<td width="25%">[view.showClosePaidInvoices;strconv=no]</td>
+					
+					
+					
 				</tr>
 			</tbody>
 		</table>

@@ -48,14 +48,25 @@ switch ($action) {
 		if (empty($enclosure)) $enclosure = $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE;
 		
 		$file = $_FILES['paymentfile'];
+		if ($file['error'] > 0)
+		{
+			// @see http://php.net/manual/fr/features.file-upload.errors.php
+			$error++;
+			setEventMessage($langs->trans('ImportPaymentFileError', $file['error']), 'errors');
+		}
 		
-		$TData = $object->parseFile($file['tmp_name'], $nb_ignore, $delimiter, $enclosure);
-		
-		// TODO if error or required field empty then goto step1
-		
-		_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $file['name']);
+		if (empty($error))
+		{
+			$TData = $object->parseFile($file['tmp_name'], $nb_ignore, $delimiter, $enclosure);
+			_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $file['name']);
+		}
+		else
+		{
+			_step1($object);
+		}
 		
 		break;
+		
 	case 'gotostep3':
 		$datep = GETPOST('datep', 'int');
 		$fk_c_paiement = GETPOST('fk_c_paiement', 'int');
@@ -98,7 +109,7 @@ switch ($action) {
 		break;
 	
 	default:
-		_step1($object, $action, $step);
+		_step1($object);
 		break;
 }
 
@@ -133,7 +144,7 @@ function _step1(&$object)
 	ob_start();
 	$form->select_comptes(GETPOST('fk_bank_account'), 'fk_bank_account');
 	$selectAccountToCredit = ob_get_clean();
-	
+
 	print $TBS->render('tpl/card.tpl.php'
 		,array(
 			'TData'=>array()
@@ -146,12 +157,13 @@ function _step1(&$object)
 				,'step' => 1
 				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
 				,'showInputFile' => $formcore->fichier('', 'paymentfile', '', $conf->global->MAIN_UPLOAD_DOC)
-				,'showNbIgnore' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->number('', 'nb_ignore', (int) $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE, 5) : $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE
+				,'showNbIgnore' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->number('', 'nb_ignore', (GETPOST('nb_ignore', 'int') !== '' ? GETPOST('nb_ignore', 'int') : (int) $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE), 5) : $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE
 				,'showInputPaymentDate' => $form->select_date($datep, 'p', 0, 0, 0, '', 1, 1, 1)
-				,'showDelimiter' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'delimiter', $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER, 5) : $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER
+				,'showDelimiter' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'delimiter', (GETPOST('delimiter') !== '' ? GETPOST('delimiter') : $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER), 5) : $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER
 				,'showInputPaymentMode' => $selectPaymentMode
-				,'showEnclosure' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', dol_escape_htmltag($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE), 5) : dol_escape_htmltag($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)
+				,'showEnclosure' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', dol_escape_htmltag((GETPOST('enclosure') !== '' ? GETPOST('enclosure') : $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)), 5) : dol_escape_htmltag($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)
 				,'showInputAccountToCredit' => $selectAccountToCredit
+				,'showClosePaidInvoices' => '<input type="checkbox" name="closepaidinvoices" value="1" '.(GETPOST('closepaidinvoices', 'int') == 1 ? 'checked="checked"' : '').' />'
 			)
 			,'langs' => $langs
 		)
@@ -290,28 +302,25 @@ function _footer()
 
 function getValue($FieldName, &$CurrVal, &$CurrPrm, &$TBS)
 {
-//	if ($CurrPrm['fieldname'] == 'ref_facture') 
-//	{
-//		$CurrVal = unserialize($CurrVal);
-//		$CurrVal = $CurrVal->getNomUrl(1);
-//	}
+	global $langs;
 	
-	if (is_object($CurrVal) && get_class($CurrVal) === 'Facture') $CurrVal = $CurrVal->getNomUrl(1);
-	
+	if (is_object($CurrVal) && get_class($CurrVal) === 'Facture')
+	{
+		$facture = $CurrVal;
+		$CurrVal = $facture->getNomUrl(1);
+		if (method_exists($facture, 'getRemainToPay'))
+		{
+			$remainToPay = $facture->getRemainToPay();
+			$CurrVal.= '<br /><b class="'.($remainToPay <= 0 ? 'error' : 'ok').'">'.price($remainToPay, 0, $langs).'</b>';
+		}
+	}
 	
 	return $CurrVal;
 }
 
 function getSanitizedValue($FieldName, &$CurrVal, &$CurrPrm, &$TBS)
 {
-//	if ($CurrPrm['fieldname'] == 'ref_facture') 
-//	{
-//		$CurrVal = unserialize($CurrVal);
-//		$CurrVal = $CurrVal->ref;
-//	}
-	
 	if (is_object($CurrVal) && get_class($CurrVal) === 'Facture') $CurrVal = $CurrVal->ref;
-	
 	
 	return $CurrVal;
 }

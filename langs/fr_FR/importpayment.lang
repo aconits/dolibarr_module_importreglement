@@ -19,12 +19,16 @@ NoImportPayment=(vide)
 # CARD
 NewImportPayment=Création ImportPayment
 ImportPaymentCard=Fiche ImportPayment
+ImportPaymentFileError=Erreur sur le fichier (code : %d)
+ImportPaymentSuccess=Paiement(s) enregistré(s)
 
 # CARD TPL
+FileToImport=Fichier à importer
 PaymentDate=Date de règlement
 NbIgnore=Nombre de lignes à ignorer
 Delimiter=Caractère de séparation
 Enclosure=Caractère d'encadrement
+ClosePaidInvoices=Classer "Payée" si entièrement payées
 ImportPaymentDataParsed=Analyse des données
 ImportPaymentCheckboxToImport=Ligne à importer
 SubmitLabel_gotostep2=Lecture du fichier

@@ -24,7 +24,7 @@ class TImportPayment extends TObjetStd
 		$this->set_table(MAIN_DB_PREFIX.'importpayment');
 		
 		$this->add_champs('entity,fk_user_author,fk_c_paiement,fk_bank_account', array('type' => 'integer'));
-		$this->add_champs('brut_file_content', array('type' => 'text'));
+		$this->add_champs('TData', array('type' => 'text'));
 		
 		$this->_init_vars();
 		$this->start();
