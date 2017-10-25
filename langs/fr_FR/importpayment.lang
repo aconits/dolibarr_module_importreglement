@@ -52,3 +52,4 @@ ImportPaymentErrorOneOrMoreFieldsRequiredNotUsed=Erreur dans la configuration de
 ImportPaymentFieldsOrder=Ordre des champs contenu dans le fichier d'import
 ImportPaymentFieldsAvailable=Liste des champs disponibles
 ImportPaymentIgnoredLine=Ignorer
+ColumnsOrder=Ordre des colonnes
