@@ -92,7 +92,7 @@ llxHeader('', $langs->trans($page_name), '', '', 0, 0, $TJs, $TCss);
 // Subheader
 $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     . $langs->trans("BackToModuleList") . '</a>';
-print_fiche_titre($langs->trans($page_name), $linkback);
+print_fiche_titre($langs->trans($page_name), $linkback, 'title_setup.png');
 
 // Configuration header
 $head = importpaymentAdminPrepareHead();
