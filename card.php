@@ -192,7 +192,7 @@ function _step1(&$object)
 				,'showInputPaymentDate' => $form->select_date($datep, 'p', 0, 0, 0, '', 1, 1, 1)
 				,'showDelimiter' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'delimiter', (GETPOST('delimiter') !== '' ? GETPOST('delimiter') : $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER), 5) : $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER
 				,'showInputPaymentMode' => $selectPaymentMode
-				,'showEnclosure' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', dol_escape_htmltag((GETPOST('enclosure') !== '' ? GETPOST('enclosure') : $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)), 5) : dol_escape_htmltag($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)
+				,'showEnclosure' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', htmlentities((GETPOST('enclosure') !== '' ? GETPOST('enclosure') : $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)), 5) : htmlentities($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)
 				,'showInputAccountToCredit' => $selectAccountToCredit
 				,'showClosePaidInvoices' => $formcore->checkbox1('', 'closepaidinvoices', 1, (GETPOST('closepaidinvoices', 'int') == 1 ? true : false))
 			)
@@ -246,7 +246,7 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)
 				,'showDelimiter' => $delimiter.' '.$formcore->hidden('delimiter', $delimiter)
 				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label'].' '.$formcore->hidden('fk_c_paiement', $fk_c_paiement)
-				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', dol_escape_htmltag($enclosure))
+				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', htmlentities($enclosure))
 				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
 				,'showClosePaidInvoices' => yn((bool) $closepaidinvoices, 1, 2).$formcore->hidden('closepaidinvoices', $closepaidinvoices)
 			)
@@ -301,7 +301,7 @@ function _step3(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)
 				,'showDelimiter' => $delimiter.' '.$formcore->hidden('delimiter', $delimiter)
 				,'showInputPaymentMode' => $form->cache_types_paiements[$fk_c_paiement]['label'].' '.$formcore->hidden('fk_c_paiement', $fk_c_paiement)
-				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', dol_escape_htmltag($enclosure))
+				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', htmlentities($enclosure))
 				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
 				,'showClosePaidInvoices' => yn((bool) $closepaidinvoices, 1, 2).$formcore->hidden('closepaidinvoices', $closepaidinvoices)
 			)
