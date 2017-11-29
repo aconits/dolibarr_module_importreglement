@@ -79,7 +79,7 @@ function importpayment_prepare_head(TImportPayment $object)
 	return $head;
 }
 
-function getFormConfirm(&$form, &$object, $action, $formquestion)
+function getFormConfirmImportPayment(&$form, &$object, $action, $formquestion)
 {
     global $langs,$conf,$user;
 
