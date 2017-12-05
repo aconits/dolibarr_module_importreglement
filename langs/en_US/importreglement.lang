@@ -1,7 +1,55 @@
-Module104741Name = ImportReglement
-Module104741Desc = ImportReglement Description
+Module104741Name = Payment import
+Module104741Desc = Tool to import a CSV file with your payments to create on invoices
 
 ATMAbout = This module has been developed by <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>You can find the documentation on our <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>For any question or feedback, contact us on <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>For any commercial question, contact us on <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> or at +33 9 77 19 50 70<br><br>Find our other modules on <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
 
-ImportReglementSetup = ImportReglement module setup
-ImportReglementAbout = About ImportReglement
+ImportReglementSetup = Payment import module setup
+ImportReglementAbout = About payment import
+
+ImportReglement=Import payment
+
+# MENU
+TopMenuImportReglement=Import payments
+LeftMenuImportReglementCreate=New import
+
+# LIST
+ImportReglementList=List Payment Import
+NoImportReglement=(empty)
+
+# CARD
+NewImportReglement=Creating payments import
+ImportReglementCard=Card payments import
+ImportReglementFileError=Error: no file or corrupted file (code : %d)
+ImportReglementSuccess=Payment(s) saved
+ImportReglementErrorDatePaymentEmpty=Error: please enter a valid date
+ImportReglementErrorPaymentTypeEmpty=Error: please enter a payment method
+ImportReglementErrorBankAccountEmpty=Error: please enter an account to be credited
+
+# CARD TPL
+FileToImport=File to import
+PaymentDate=Payment data
+NbIgnore=Number of lines to ignore
+Delimiter=Separation character
+Enclosure=Enclosure character
+ClosePaidInvoices=Class "Paid" if fully paid
+ImportReglementDataParsed=Data analysis
+ImportReglementCheckboxToImport=Line to import
+SubmitLabel_gotostep2=Reading file
+SubmitLabel_gotostep3=Simulate import
+SubmitLabel_confirm_import=Confirm import
+ImportReglementFactureNotFound=Invoice [%s] does not exists
+Comment1=Comment 1
+Comment2=Comment 2
+Comment3=Comment 3
+Comment4=Comment 4
+
+# CONFIGURATION
+IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT=Can redefine the default settings for processing the file via the import form
+IMPORTREGLEMENT_DEFAULT_NB_INGORE=Number of lines to ignore from reading file
+IMPORTREGLEMENT_DEFAULT_DELIMITER=Field separation character
+IMPORTREGLEMENT_DEFAULT_ENCLOSURE=Enclosure character of string
+ImportReglementErrorOneOrMoreFieldsRequiredNotUsed=Error into configuration, one or more required fields are not set: <u>%s</u>
+ImportReglementFieldsOrder=Fields order contained in your file
+ImportReglementFieldsAvailable=Fields list available
+ImportReglementIgnoredLine=Ignored
+ColumnsOrder=Fields order
