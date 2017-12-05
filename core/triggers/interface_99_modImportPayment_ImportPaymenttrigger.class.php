@@ -1,5 +1,5 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
+/* Copyright (C) 2017      Pierre-Henry Favre <support@atm-consulting.fr>
  * Copyright (C) 2015 ATM Consulting <support@atm-consulting.fr>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,12 +17,12 @@
  */
 
 /**
- * 	\file		core/triggers/interface_99_modMyodule_ImportPaymenttrigger.class.php
- * 	\ingroup	importpayment
+ * 	\file		core/triggers/interface_99_modMyodule_ImportReglementtrigger.class.php
+ * 	\ingroup	importreglement
  * 	\brief		Sample trigger
  * 	\remarks	You can create other triggers by copying this one
  * 				- File name should be either:
- * 					interface_99_modImportpayment_Mytrigger.class.php
+ * 					interface_99_modImportreglement_Mytrigger.class.php
  * 					interface_99_all_Mytrigger.class.php
  * 				- The file must stay in core/triggers
  * 				- The class name must be InterfaceMytrigger
@@ -33,7 +33,7 @@
 /**
  * Trigger class
  */
-class InterfaceImportPaymenttrigger
+class InterfaceImportReglementtrigger
 {
 
     private $db;
@@ -54,7 +54,7 @@ class InterfaceImportPaymenttrigger
             . "They are provided for tutorial purpose only.";
         // 'development', 'experimental', 'dolibarr' or version
         $this->version = 'development';
-        $this->picto = 'importpayment@importpayment';
+        $this->picto = 'importreglement@importreglement';
     }
 
     /**

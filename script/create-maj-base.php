@@ -14,9 +14,9 @@ if(!defined('INC_FROM_DOLIBARR')) {
 // uncomment
 
 
-dol_include_once('/importpayment/class/importpayment.class.php');
+dol_include_once('/importreglement/class/importreglement.class.php');
 
 $PDOdb=new TPDOdb;
 
-$o=new TImportPayment;
+$o=new TImportReglement;
 $o->init_db_by_vars($PDOdb);

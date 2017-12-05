@@ -1,6 +1,6 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) 2015 ATM Consulting <support@atm-consulting.fr>
+/* Copyright (C) 2017      Pierre-Henry Favre <support@atm-consulting.fr>
+ * Copyright (C) 2015      ATM Consulting <support@atm-consulting.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  */
 
 /**
- * 	\file		admin/importpayment.php
- * 	\ingroup	importpayment
+ * 	\file		admin/importreglement.php
+ * 	\ingroup	importreglement
  * 	\brief		This file is an example module setup page
  * 				Put some comments here
  */
@@ -30,11 +30,11 @@ if (! $res) {
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
-require_once '../lib/importpayment.lib.php';
-dol_include_once('/importpayment/class/importpayment.class.php');
+require_once '../lib/importreglement.lib.php';
+dol_include_once('/importreglement/class/importreglement.class.php');
 
 // Translations
-$langs->load("importpayment@importpayment");
+$langs->load("importreglement@importreglement");
 $langs->load("admin");
 $langs->load('bills');
 
@@ -53,7 +53,7 @@ if (preg_match('/set_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
 	$value=GETPOST($code);
-	if ($code === 'IMPORTPAYMENT_TFIELD_ORDER') $value=serialize(GETPOST('TField'));
+	if ($code === 'IMPORTREGLEMENT_TFIELD_ORDER') $value=serialize(GETPOST('TField'));
 	
 	if (dolibarr_set_const($db, $code, $value, 'chaine', 0, '', $conf->entity) > 0)
 	{
@@ -84,9 +84,9 @@ if (preg_match('/del_(.*)/',$action,$reg))
 /*
  * View
  */
-$page_name = "ImportPaymentSetup";
-$TJs = array('/importpayment/js/importpayment.js');
-$TCss = array('/importpayment/css/importpayment.css');
+$page_name = "ImportReglementSetup";
+$TJs = array('/importreglement/js/importreglement.js');
+$TCss = array('/importreglement/css/importreglement.css');
 llxHeader('', $langs->trans($page_name), '', '', 0, 0, $TJs, $TCss);
 
 // Subheader
@@ -95,13 +95,13 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 print_fiche_titre($langs->trans($page_name), $linkback, 'title_setup.png');
 
 // Configuration header
-$head = importpaymentAdminPrepareHead();
+$head = importreglementAdminPrepareHead();
 dol_fiche_head(
     $head,
     'settings',
     $langs->trans("Module104741Name"),
     0,
-    "importpayment@importpayment"
+    "importreglement@importreglement"
 );
 
 // Setup page goes here
@@ -116,51 +116,51 @@ print '</tr>';
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT").'</td>';
+print '<td>'.$langs->trans("IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">'; // Keep form because ajax_constantonoff return single link with <a> if the js is disabled
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT">';
-print ajax_constantonoff('IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT');
+print '<input type="hidden" name="action" value="set_IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT">';
+print ajax_constantonoff('IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT');
 print '</form>';
 print '</td></tr>';
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("IMPORTPAYMENT_DEFAULT_NB_INGORE").'</td>';
+print '<td>'.$langs->trans("IMPORTREGLEMENT_DEFAULT_NB_INGORE").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_IMPORTPAYMENT_DEFAULT_NB_INGORE">';
-print '<input type="text" name="IMPORTPAYMENT_DEFAULT_NB_INGORE" value="'.$conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE.'" size="5" />';
+print '<input type="hidden" name="action" value="set_IMPORTREGLEMENT_DEFAULT_NB_INGORE">';
+print '<input type="text" name="IMPORTREGLEMENT_DEFAULT_NB_INGORE" value="'.$conf->global->IMPORTREGLEMENT_DEFAULT_NB_INGORE.'" size="5" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("IMPORTPAYMENT_DEFAULT_DELIMITER").'</td>';
+print '<td>'.$langs->trans("IMPORTREGLEMENT_DEFAULT_DELIMITER").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_IMPORTPAYMENT_DEFAULT_DELIMITER">';
-print '<input type="text" name="IMPORTPAYMENT_DEFAULT_DELIMITER" value="'.htmlentities($conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER).'" size="5" />';
+print '<input type="hidden" name="action" value="set_IMPORTREGLEMENT_DEFAULT_DELIMITER">';
+print '<input type="text" name="IMPORTREGLEMENT_DEFAULT_DELIMITER" value="'.htmlentities($conf->global->IMPORTREGLEMENT_DEFAULT_DELIMITER).'" size="5" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("IMPORTPAYMENT_DEFAULT_ENCLOSURE").'</td>';
+print '<td>'.$langs->trans("IMPORTREGLEMENT_DEFAULT_ENCLOSURE").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_IMPORTPAYMENT_DEFAULT_ENCLOSURE">';
-print '<input type="text" name="IMPORTPAYMENT_DEFAULT_ENCLOSURE" value="'.htmlentities($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE).'" size="5" />';
+print '<input type="hidden" name="action" value="set_IMPORTREGLEMENT_DEFAULT_ENCLOSURE">';
+print '<input type="text" name="IMPORTREGLEMENT_DEFAULT_ENCLOSURE" value="'.htmlentities($conf->global->IMPORTREGLEMENT_DEFAULT_ENCLOSURE).'" size="5" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
@@ -168,11 +168,11 @@ print '</td></tr>';
 
 print '</table>';
 
-$TFieldPossible = TImportPayment::getTFieldPossible();
-$TFieldRequired = TImportPayment::getTFieldRequired();
-$TFieldOptional = TImportPayment::getTFieldOptional();
+$TFieldPossible = TImportReglement::getTFieldPossible();
+$TFieldRequired = TImportReglement::getTFieldRequired();
+$TFieldOptional = TImportReglement::getTFieldOptional();
 
-$TField = TImportPayment::getTFieldOrder();
+$TField = TImportReglement::getTFieldOrder();
 
 print '<br />';
 print '<div class="underbanner clearboth"></div>';
@@ -180,14 +180,14 @@ print '<div class="titre">'.$langs->trans("ColumnsOrder").'</div>';
 
 if (!checkFieldsRequiredUse($TField, $TFieldRequired))
 {
-	print '<div class="error">'.$langs->trans('ImportPaymentErrorOneOrMoreFieldsRequiredNotUsed', implode(', ', $TFieldRequired)).'</div>';
+	print '<div class="error">'.$langs->trans('ImportReglementErrorOneOrMoreFieldsRequiredNotUsed', implode(', ', $TFieldRequired)).'</div>';
 }
 
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="action" value="set_IMPORTPAYMENT_TFIELD_ORDER">';
+print '<input type="hidden" name="action" value="set_IMPORTREGLEMENT_TFIELD_ORDER">';
 
 print '<fieldset>';
-print '<legend>'.$langs->trans('ImportPaymentFieldsOrder').'</legend>';
+print '<legend>'.$langs->trans('ImportReglementFieldsOrder').'</legend>';
 print '<ul id="columns_order" class="inline sortable">';
 foreach ($TField as $field)
 {
@@ -207,7 +207,7 @@ print '</form>';
 
 
 print '<fieldset>';
-print '<legend>'.$langs->trans('ImportPaymentFieldsAvailable').'</legend>';
+print '<legend>'.$langs->trans('ImportReglementFieldsAvailable').'</legend>';
 print '<ul id="columns_available" class="inline sortable">';
 foreach ($TFieldPossible as $field => $label)
 {

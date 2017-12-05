@@ -1,6 +1,5 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) <year>  <name of author>
+/* Copyright (C) 2017      Pierre-Henry Favre <support@atm-consulting.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +17,7 @@
 
 /**
  * 	\file		core/boxes/mybox.php
- * 	\ingroup	importpayment
+ * 	\ingroup	importreglement
  * 	\brief		This file is a sample box definition file
  * 				Put some comments here
  */
@@ -27,13 +26,13 @@ include_once DOL_DOCUMENT_ROOT . "/core/boxes/modules_boxes.php";
 /**
  * Class to manage the box
  */
-class importpaymentbox extends ModeleBoxes
+class importreglementbox extends ModeleBoxes
 {
 
     public $boxcode = "mybox";
-    public $boximg = "importpayment@importpayment";
+    public $boximg = "importreglement@importreglement";
     public $boxlabel;
-    public $depends = array("importpayment");
+    public $depends = array("importreglement");
     public $db;
     public $param;
     public $info_box_head = array();
@@ -62,7 +61,7 @@ class importpaymentbox extends ModeleBoxes
 
         $this->max = $max;
 
-        //include_once DOL_DOCUMENT_ROOT . "/importpayment/class/importpayment.class.php";
+        //include_once DOL_DOCUMENT_ROOT . "/importreglement/class/importreglement.class.php";
 
         $text = $langs->trans("MyBoxDescription", $max);
         $this->info_box_head = array(

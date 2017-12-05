@@ -4,13 +4,11 @@
 	<input type="hidden" name="step" value="[view.step]" />
 	<textarea name="TDataCompressed" style="display:none;">[TDataCompressed]</textarea>
 	
-	
-	<div class="error">
-		[TError;block=begin;magnet=div]
+	[TError;block=begin]
+	<div class="warning error">
 		<p>[langs.transnoentities([TError.val;noerr]);strconv=no]</p>
-		[TError;block=end]
 	</div>
-	
+	[TError;block=end]
 	
 	<div class="fichecenter">
 		<table width="100%" class="border tableforfield">
@@ -52,15 +50,15 @@
 	<table width="100%" class="border">
 		<tbody>
 			<tr class="liste_titre">
-				<th colspan="[view.colspan;noerr]">[langs.transnoentities(ImportPaymentDataParsed)]</th>
+				<th colspan="[view.colspan;noerr]">[langs.transnoentities(ImportReglementDataParsed)]</th>
 			</tr>
 			<tr class="liste_titre">
 				[onshow;block=begin;when [view.step]==2]
-					<th><input type="checkbox" title="[langs.transnoentities(ImportPaymentCheckboxToImport)]" onclick="$('.TLineIndex').prop('checked', $(this).is(':checked'));" /></th>
+					<th><input type="checkbox" title="[langs.transnoentities(ImportReglementCheckboxToImport)]" onclick="$('.TLineIndex').prop('checked', $(this).is(':checked'));" /></th>
 				[onshow;block=end]
 				
 				<th class="[TFieldOrder.field;block=th]">
-					[onshow;block=begin;when [conf.global.IMPORTPAYMENT_REORDER_ALLOWED;noerr]==1]
+					[onshow;block=begin;when [conf.global.IMPORTREGLEMENT_REORDER_ALLOWED;noerr]==1]
 						<input type="hidden" name="TField[]" value="[TFieldOrder.field]" />
 					[onshow;block=end]
 					[TFieldOrder.label;strconv=no]

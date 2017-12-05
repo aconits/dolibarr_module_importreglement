@@ -1,6 +1,6 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) 2015 ATM Consulting <support@atm-consulting.fr>
+/* Copyright (C) 2017      Pierre-Henry Favre <support@atm-consulting.fr>
+ * Copyright (C) 2015      ATM Consulting <support@atm-consulting.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +17,16 @@
  */
 
 /**
- * \file    class/actions_importpayment.class.php
- * \ingroup importpayment
+ * \file    class/actions_importreglement.class.php
+ * \ingroup importreglement
  * \brief   This file is an example hook overload class file
  *          Put some comments here
  */
 
 /**
- * Class ActionsImportPayment
+ * Class ActionsImportReglement
  */
-class ActionsImportPayment
+class ActionsImportReglement
 {
 	/**
 	 * @var array Hook results. Propagated to $hookmanager->resArray for later reuse

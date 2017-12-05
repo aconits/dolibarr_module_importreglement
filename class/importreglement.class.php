@@ -10,7 +10,7 @@ if (!class_exists('TObjetStd'))
 }
 
 
-class TImportPayment extends TObjetStd
+class TImportReglement extends TObjetStd
 {
 	public $error='';
 	public $TError=array();
@@ -21,7 +21,7 @@ class TImportPayment extends TObjetStd
 		
 		parent::__construct();
 		
-		$this->set_table(MAIN_DB_PREFIX.'importpayment');
+		$this->set_table(MAIN_DB_PREFIX.'importreglement');
 		
 		$this->add_champs('entity,fk_user_author,fk_c_paiement,fk_bank_account', array('type' => 'integer'));
 		$this->add_champs('datep', array('type' => 'date'));
@@ -46,17 +46,18 @@ class TImportPayment extends TObjetStd
 		$handle = fopen($filename, 'r');
 		if (!$handle)
 		{
-			$this->error = 'ErrorImportPaymentCanNotOpenFile';
+			$this->error = 'ErrorImportReglementCanNotOpenFile';
 			$this->TError[] = $this->error;
 			return array();
 		}
 		
-		// TODO ligne(s) d'entête à ignorer ?
+		// ligne(s) d'entête à ignorer
 		if ($nb_ignore > 0)
 		{
 			while ($nb_ignore--) fgets($handle);
 		}
 		
+		// TODO à voir si je conserve la fonction fgets() plutôt que fgetcsv()
 		$TData = array();
 		while ($line = fgets($handle))
 		{
@@ -86,7 +87,7 @@ class TImportPayment extends TObjetStd
 		global $langs;
 		
 		return array(
-			'ignored' => $langs->transnoentities('ImportPaymentIgnoredLine')
+			'ignored' => $langs->transnoentities('ImportReglementIgnoredLine')
 			,'num_paiement' => $langs->transnoentities('Numero').' <em>('.$langs->transnoentities("ChequeOrTransferNumber").')</em>'
 			,'chqemetteur' => $langs->transnoentities('CheckTransmitter').' <em>('.$langs->transnoentities("ChequeMaker").')</em>'
 			,'chqbank' => $langs->transnoentities('Bank').' <em>('.$langs->transnoentities("ChequeBank").')</em>'
@@ -105,7 +106,7 @@ class TImportPayment extends TObjetStd
 		
 		$TRes = array();
 		
-		if (!empty($conf->global->IMPORTPAYMENT_TFIELD_ORDER)) $TRes = unserialize($conf->global->IMPORTPAYMENT_TFIELD_ORDER);
+		if (!empty($conf->global->IMPORTREGLEMENT_TFIELD_ORDER)) $TRes = unserialize($conf->global->IMPORTREGLEMENT_TFIELD_ORDER);
 		else $TRes = self::getDefaultTFieldOrder();
 		
 		if ($withLabel)
@@ -186,7 +187,7 @@ class TImportPayment extends TObjetStd
 		{
 			if (empty($Tab[$TOrderFieldName['ref_facture']]->id))
 			{
-				$TError[] = $langs->transnoentities('ImportPaymentFactureNotFound', strip_tags($Tab[$TOrderFieldName['ref_facture']]));
+				$TError[] = $langs->transnoentities('ImportReglementFactureNotFound', strip_tags($Tab[$TOrderFieldName['ref_facture']]));
 				continue;
 			}
 			

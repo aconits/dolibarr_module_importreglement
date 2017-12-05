@@ -5,15 +5,15 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 
-dol_include_once('/importpayment/class/importpayment.class.php');
-dol_include_once('/importpayment/lib/importpayment.lib.php');
+dol_include_once('/importreglement/class/importreglement.class.php');
+dol_include_once('/importreglement/lib/importreglement.lib.php');
 
 dol_include_once('/compta/facture/class/facture.class.php');
 dol_include_once('/compta/paiement/class/paiement.class.php');
 
-if(empty($user->rights->facture->paiement) || empty($user->rights->importpayment->import)) accessforbidden();
+if(empty($user->rights->facture->paiement) || empty($user->rights->importreglement->import)) accessforbidden();
 
-$langs->load('importpayment@importpayment');
+$langs->load('importreglement@importreglement');
 $langs->load('bills');
 $langs->load('errors');
 
@@ -22,9 +22,9 @@ $step = GETPOST('step', 'int');
 
 if (empty($step)) $step = 1;
 	
-$object = new TImportPayment;
+$object = new TImportReglement;
 
-$hookmanager->initHooks(array('importpaymentcard', 'globalcard'));
+$hookmanager->initHooks(array('importreglementcard', 'globalcard'));
 
 /*
  * Actions
@@ -42,23 +42,23 @@ switch ($action) {
 		$fk_c_paiement = GETPOST('fk_c_paiement', 'int');
 		$fk_bank_account = GETPOST('fk_bank_account', 'int');
 		
-		if (empty($datep)) { $error++; setEventMessage($langs->trans('ImportPaymentErrorDatePaymentEmpty'), 'errors'); }
-		if ($fk_c_paiement <= 0) { $error++; setEventMessage($langs->trans('ImportPaymentErrorPaymentTypeEmpty'), 'errors'); }
-		if ($fk_bank_account <= 0) { $error++; setEventMessage($langs->trans('ImportPaymentErrorBankAccountEmpty'), 'errors'); }
+		if (empty($datep)) { $error++; setEventMessage($langs->trans('ImportReglementErrorDatePaymentEmpty'), 'errors'); }
+		if ($fk_c_paiement <= 0) { $error++; setEventMessage($langs->trans('ImportReglementErrorPaymentTypeEmpty'), 'errors'); }
+		if ($fk_bank_account <= 0) { $error++; setEventMessage($langs->trans('ImportReglementErrorBankAccountEmpty'), 'errors'); }
 		
 		$nb_ignore = GETPOST('nb_ignore', 'int');
-		if (empty($nb_ignore) && strcmp($nb_ignore, 0) !== 0) $nb_ignore = $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE;
+		if (empty($nb_ignore) && strcmp($nb_ignore, 0) !== 0) $nb_ignore = $conf->global->IMPORTREGLEMENT_DEFAULT_NB_INGORE;
 		$delimiter = GETPOST('delimiter');
-		if (empty($delimiter)) $delimiter = $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER;
+		if (empty($delimiter)) $delimiter = $conf->global->IMPORTREGLEMENT_DEFAULT_DELIMITER;
 		$enclosure = GETPOST('enclosure');
-		if (empty($enclosure)) $enclosure = $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE;
+		if (empty($enclosure)) $enclosure = $conf->global->IMPORTREGLEMENT_DEFAULT_ENCLOSURE;
 
 		$file = $_FILES['paymentfile'];
 		if ($file['error'] > 0)
 		{
 			// @see http://php.net/manual/fr/features.file-upload.errors.php
 			$error++;
-			setEventMessage($langs->trans('ImportPaymentFileError', $file['error']), 'errors');
+			setEventMessage($langs->trans('ImportReglementFileError', $file['error']), 'errors');
 		}
 		
 		if (empty($error))
@@ -84,13 +84,13 @@ switch ($action) {
 		$closepaidinvoices= GETPOST('closepaidinvoices', 'int');
 		
 		$TFieldOrder = GETPOST('TField', 'array');
-		if (empty($TFieldOrder)) $TFieldOrder = TImportPayment::getTFieldOrder();
+		if (empty($TFieldOrder)) $TFieldOrder = TImportReglement::getTFieldOrder();
 		
 		// TODO remove static calls by standard methods
-		$TData = TImportPayment::getFormatedData($TFieldOrder, GETPOST('TLineIndex', 'array'), GETPOST('TData', 'array'));
+		$TData = TImportReglement::getFormatedData($TFieldOrder, GETPOST('TLineIndex', 'array'), GETPOST('TData', 'array'));
 		if (!empty($TData))
 		{
-			$TError = TImportPayment::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, true, $closepaidinvoices);
+			$TError = TImportReglement::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, true, $closepaidinvoices);
 		}
 		
 		if (empty($error) && empty($TError))
@@ -99,7 +99,7 @@ switch ($action) {
 		}
 		else
 		{
-			if (empty($TData)) setEventMessage($langs->trans('ImportPaymentEmptyData'), 'warnings');
+			if (empty($TData)) setEventMessage($langs->trans('ImportReglementEmptyData'), 'warnings');
 			_step2($object, unserialize(gzuncompress(base64_decode(GETPOST('TDataCompressed')))), $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, $TError);
 		}
 		
@@ -111,16 +111,16 @@ switch ($action) {
 		$fk_bank_account = GETPOST('fk_bank_account');
 
 		$TFieldOrder = GETPOST('TField', 'array');
-		if (empty($TFieldOrder)) $TFieldOrder = TImportPayment::getTFieldOrder();
+		if (empty($TFieldOrder)) $TFieldOrder = TImportReglement::getTFieldOrder();
 		
 		$TData = GETPOST('TData', 'array');
-		$TData = TImportPayment::getFormatedData($TFieldOrder, array_keys($TData), $TData);
+		$TData = TImportReglement::getFormatedData($TFieldOrder, array_keys($TData), $TData);
 		
-		$TError = TImportPayment::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, false, GETPOST('closepaidinvoices', 'int'));
+		$TError = TImportReglement::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, false, GETPOST('closepaidinvoices', 'int'));
 
 		if (empty($TError))
 		{
-			setEventMessages($langs->trans('ImportPaymentSuccess'));
+			setEventMessages($langs->trans('ImportReglementSuccess'));
 			
 			$object->entity = $conf->entity;
 			$object->datep = $datep;
@@ -135,7 +135,7 @@ switch ($action) {
 		}
 		else setEventMessages(null, $TError, 'errors');
 		
-		header('Location: '.dol_buildpath('/importpayment/card.php', 1));
+		header('Location: '.dol_buildpath('/importreglement/card.php', 1));
 		exit;
 		break;
 	
@@ -164,7 +164,7 @@ function _step1(&$object)
 	$TBS->TBS->protect=false;
 	$TBS->TBS->noerr=true;
 
-	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
+	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importreglement', 'POST', true);
 	
 	$datep = dol_mktime(12, 0, 0, GETPOST('pmonth'), GETPOST('pday'), GETPOST('pyear'));
 	
@@ -186,13 +186,13 @@ function _step1(&$object)
 			,'view' => array(
 				'action' => 'gotostep2'
 				,'step' => 1
-				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
+				,'urlcard' => dol_buildpath('/importreglement/card.php', 1)
 				,'showInputFile' => $formcore->fichier('', 'paymentfile', '', $conf->global->MAIN_UPLOAD_DOC)
-				,'showNbIgnore' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->number('', 'nb_ignore', (GETPOST('nb_ignore', 'int') !== '' ? GETPOST('nb_ignore', 'int') : (int) $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE), 5) : $conf->global->IMPORTPAYMENT_DEFAULT_NB_INGORE
+				,'showNbIgnore' => (!empty($conf->global->IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->number('', 'nb_ignore', (GETPOST('nb_ignore', 'int') !== '' ? GETPOST('nb_ignore', 'int') : (int) $conf->global->IMPORTREGLEMENT_DEFAULT_NB_INGORE), 5) : $conf->global->IMPORTREGLEMENT_DEFAULT_NB_INGORE
 				,'showInputPaymentDate' => $form->select_date($datep, 'p', 0, 0, 0, '', 1, 1, 1)
-				,'showDelimiter' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'delimiter', (GETPOST('delimiter') !== '' ? GETPOST('delimiter') : $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER), 5) : $conf->global->IMPORTPAYMENT_DEFAULT_DELIMITER
+				,'showDelimiter' => (!empty($conf->global->IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'delimiter', (GETPOST('delimiter') !== '' ? GETPOST('delimiter') : $conf->global->IMPORTREGLEMENT_DEFAULT_DELIMITER), 5) : $conf->global->IMPORTREGLEMENT_DEFAULT_DELIMITER
 				,'showInputPaymentMode' => $selectPaymentMode
-				,'showEnclosure' => (!empty($conf->global->IMPORTPAYMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', htmlentities((GETPOST('enclosure') !== '' ? GETPOST('enclosure') : $conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)), 5) : htmlentities($conf->global->IMPORTPAYMENT_DEFAULT_ENCLOSURE)
+				,'showEnclosure' => (!empty($conf->global->IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', htmlentities((GETPOST('enclosure') !== '' ? GETPOST('enclosure') : $conf->global->IMPORTREGLEMENT_DEFAULT_ENCLOSURE)), 5) : htmlentities($conf->global->IMPORTREGLEMENT_DEFAULT_ENCLOSURE)
 				,'showInputAccountToCredit' => $selectAccountToCredit
 				,'showClosePaidInvoices' => $formcore->checkbox1('', 'closepaidinvoices', 1, (GETPOST('closepaidinvoices', 'int') == 1 ? true : false))
 			)
@@ -225,9 +225,9 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 	$account = new Account($db);
 	$account->fetch($fk_bank_account);
 	
-	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
+	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importreglement', 'POST', true);
 	
-	$TFieldOrder = TImportPayment::getTFieldOrder(true);
+	$TFieldOrder = TImportReglement::getTFieldOrder(true);
 	print $TBS->render('tpl/card.tpl.php'
 		,array(
 			'TData' => $TData
@@ -240,7 +240,7 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 				'action' => 'gotostep3'
 				,'step' => 2
 				,'colspan' => count($TFieldOrder)+1
-				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
+				,'urlcard' => dol_buildpath('/importreglement/card.php', 1)
 				,'showInputFile' => $filename.' '.$formcore->hidden('filename', $filename)
 				,'showNbIgnore' => $nb_ignore.' '.$formcore->hidden('nb_ignore', $nb_ignore)
 				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)
@@ -280,9 +280,9 @@ function _step3(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 	$account = new Account($db);
 	$account->fetch($fk_bank_account);
 	
-	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importpayment', 'POST', true);
+	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importreglement', 'POST', true);
 	
-	$TFieldOrder = TImportPayment::getTFieldOrder(true);
+	$TFieldOrder = TImportReglement::getTFieldOrder(true);
 	print $TBS->render('tpl/card.tpl.php'
 		,array(
 			'TData' => $TData
@@ -295,7 +295,7 @@ function _step3(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 				'action' => 'confirm_import'
 				,'step' => 3
 				,'colspan' => count($TFieldOrder)
-				,'urlcard' => dol_buildpath('/importpayment/card.php', 1)
+				,'urlcard' => dol_buildpath('/importreglement/card.php', 1)
 				,'showInputFile' => $filename.' '.$formcore->hidden('filename', $filename)
 				,'showNbIgnore' => $nb_ignore.' '.$formcore->hidden('nb_ignore', $nb_ignore)
 				,'showInputPaymentDate' => dol_print_date($datep, 'day').' '.$formcore->hidden('datep', $datep)
@@ -320,12 +320,12 @@ function _header(&$object)
 {
 	global $langs;
 	
-	$title=$langs->trans("ImportPayment");
+	$title=$langs->trans("ImportReglement");
 	llxHeader('',$title);
 
-	$head = importpayment_prepare_head($object);
+	$head = importreglement_prepare_head($object);
 	$picto = 'generic';
-	dol_fiche_head($head, 'card', $langs->trans("ImportPayment"), 0, $picto);
+	dol_fiche_head($head, 'card', $langs->trans("ImportReglement"), 0, $picto);
 }
 
 function _footer()

@@ -1,0 +1,55 @@
+Module104741Name = Import règlement
+Module104741Desc = Outil d'importation de fichier CSV afin de créer les règlements sur facture
+
+ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
+
+ImportReglementSetup = Configuration du module Import règlement
+ImportReglementAbout = A propos du module Import règlement
+
+ImportReglement=Import règlement
+
+# MENU
+TopMenuImportReglement=Import règlements
+LeftMenuImportReglementCreate=Nouvel import
+
+# LIST
+ImportReglementList=Liste ImportReglement
+NoImportReglement=(vide)
+
+# CARD
+NewImportReglement=Création import règlements
+ImportReglementCard=Fiche import règlements
+ImportReglementFileError=Erreur : aucun fichier ou erreur lors de sa transmission (code : %d)
+ImportReglementSuccess=Paiement(s) enregistré(s)
+ImportReglementErrorDatePaymentEmpty=Erreur : veuillez saisir une date valide
+ImportReglementErrorPaymentTypeEmpty=Erreur : veuillez saisir un mode de règlement
+ImportReglementErrorBankAccountEmpty=Erreur : veuillez saisir un compte à créditer
+
+# CARD TPL
+FileToImport=Fichier à importer
+PaymentDate=Date de règlement
+NbIgnore=Nombre de lignes à ignorer
+Delimiter=Caractère de séparation
+Enclosure=Caractère d'encadrement
+ClosePaidInvoices=Classer "Payée" si entièrement payées
+ImportReglementDataParsed=Analyse des données
+ImportReglementCheckboxToImport=Ligne à importer
+SubmitLabel_gotostep2=Lecture du fichier
+SubmitLabel_gotostep3=Simuler l'import
+SubmitLabel_confirm_import=Confirmer l'import
+ImportReglementFactureNotFound=Facture [%s] inexistante dans le système
+Comment1=Commentaire 1
+Comment2=Commentaire 2
+Comment3=Commentaire 3
+Comment4=Commentaire 4
+
+# CONFIGURATION
+IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT=Permet de redéfinir les configurations par défaut concernant le traitement du fichier via le formulaire d'import
+IMPORTREGLEMENT_DEFAULT_NB_INGORE=Nombre de lignes à ignorer lors de la lecture du fichier
+IMPORTREGLEMENT_DEFAULT_DELIMITER=Caractère de séparation des champs
+IMPORTREGLEMENT_DEFAULT_ENCLOSURE=Caractère d'encadrement des chaines
+ImportReglementErrorOneOrMoreFieldsRequiredNotUsed=Erreur dans la configuration des colonnes, une ou plusieurs colonnes obligatoires ne sont pas renseignées : <u>%s</u>
+ImportReglementFieldsOrder=Ordre des champs contenu dans le fichier d'import
+ImportReglementFieldsAvailable=Liste des champs disponibles
+ImportReglementIgnoredLine=Ignorer
+ColumnsOrder=Ordre des colonnes

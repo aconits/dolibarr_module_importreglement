@@ -1,6 +1,6 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) 2015 ATM Consulting <support@atm-consulting.fr>
+/* Copyright (C) 2017      Pierre-Henry Favre <support@atm-consulting.fr>
+ * Copyright (C) 2015      ATM Consulting <support@atm-consulting.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 /**
  * 	\file		admin/about.php
- * 	\ingroup	importpayment
+ * 	\ingroup	importreglement
  * 	\brief		This file is an example about page
  * 				Put some comments here
  */
@@ -30,10 +30,10 @@ if (! $res) {
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
-require_once '../lib/importpayment.lib.php';
+require_once '../lib/importreglement.lib.php';
 
 // Translations
-$langs->load("importpayment@importpayment");
+$langs->load("importreglement@importreglement");
 
 // Access control
 if (! $user->admin) {
@@ -43,7 +43,7 @@ if (! $user->admin) {
 /*
  * View
  */
-$page_name = "ImportPaymentAbout";
+$page_name = "ImportReglementAbout";
 llxHeader('', $langs->trans($page_name));
 
 // Subheader
@@ -52,13 +52,13 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 print_fiche_titre($langs->trans($page_name), $linkback);
 
 // Configuration header
-$head = importpaymentAdminPrepareHead();
+$head = importreglementAdminPrepareHead();
 dol_fiche_head(
     $head,
     'about',
     $langs->trans("Module104741Name"),
     0,
-    'importpayment@importpayment'
+    'importreglement@importreglement'
 );
 
 // About page goes here

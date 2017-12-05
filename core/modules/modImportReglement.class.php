@@ -1,7 +1,5 @@
 <?php
-/* Copyright (C) 2003      Rodolphe Quiedeville <rodolphe@quiedeville.org>
- * Copyright (C) 2004-2012 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2005-2012 Regis Houssin        <regis.houssin@capnetworks.com>
+/* Copyright (C) 2017      Pierre-Henry Favre <support@atm-consulting.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,20 +16,20 @@
  */
 
 /**
- * 	\defgroup   importpayment     Module ImportPayment
+ * 	\defgroup   importreglement     Module ImportReglement
  *  \brief      Example of a module descriptor.
- *				Such a file must be copied into htdocs/importpayment/core/modules directory.
- *  \file       htdocs/importpayment/core/modules/modImportPayment.class.php
- *  \ingroup    importpayment
- *  \brief      Description and activation file for module ImportPayment
+ *				Such a file must be copied into htdocs/importreglement/core/modules directory.
+ *  \file       htdocs/importreglement/core/modules/modImportReglement.class.php
+ *  \ingroup    importreglement
+ *  \brief      Description and activation file for module ImportReglement
  */
 include_once DOL_DOCUMENT_ROOT .'/core/modules/DolibarrModules.class.php';
 
 
 /**
- *  Description and activation class for module ImportPayment
+ *  Description and activation class for module ImportReglement
  */
-class modImportPayment extends DolibarrModules
+class modImportReglement extends DolibarrModules
 {
 	/**
 	 *   Constructor. Define names, constants, directories, boxes, permissions
@@ -51,7 +49,7 @@ class modImportPayment extends DolibarrModules
 		// Use here a free id (See in Home -> System information -> Dolibarr for list of used modules id).
 		$this->numero = 104741; // 104000 to 104999 for ATM CONSULTING
 		// Key text used to identify module (for permissions, menus, etc...)
-		$this->rights_class = 'importpayment';
+		$this->rights_class = 'importreglement';
 
 		// Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
 		// It is used to group modules in module setup page
@@ -59,7 +57,7 @@ class modImportPayment extends DolibarrModules
 		// Module label (no space allowed), used if translation string 'ModuleXXXName' not found (where XXX is value of numeric property 'numero' of module)
 		$this->name = preg_replace('/^mod/i','',get_class($this));
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
-		$this->description = "Description of module ImportPayment";
+		$this->description = "Description of module ImportReglement";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 		$this->version = '1.0.0';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
@@ -69,12 +67,12 @@ class modImportPayment extends DolibarrModules
 		// Name of image file used for this module.
 		// If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
-		$this->picto='importpayment@importpayment';
+		$this->picto='importreglement@importreglement';
 		
 		// Defined all module parts (triggers, login, substitutions, menus, css, etc...)
-		// for default path (eg: /importpayment/core/xxxxx) (0=disable, 1=enable)
-		// for specific path of parts (eg: /importpayment/core/modules/barcode)
-		// for specific css file (eg: /importpayment/css/importpayment.css.php)
+		// for default path (eg: /importreglement/core/xxxxx) (0=disable, 1=enable)
+		// for specific path of parts (eg: /importreglement/core/modules/barcode)
+		// for specific css file (eg: /importreglement/css/importreglement.css.php)
 		//$this->module_parts = array(
 		//                        	'triggers' => 0,                                 	// Set this to 1 if module has its own trigger directory (core/triggers)
 		//							'login' => 0,                                    	// Set this to 1 if module has its own login method directory (core/login)
@@ -84,20 +82,20 @@ class modImportPayment extends DolibarrModules
 		//                        	'tpl' => 0,                                      	// Set this to 1 if module overwrite template dir (core/tpl)
 		//							'barcode' => 0,                                  	// Set this to 1 if module has its own barcode directory (core/modules/barcode)
 		//							'models' => 0,                                   	// Set this to 1 if module has its own models directory (core/modules/xxx)
-		//							'css' => array('/importpayment/css/importpayment.css.php'),	// Set this to relative path of css file if module has its own css file
-	 	//							'js' => array('/importpayment/js/importpayment.js'),          // Set this to relative path of js file if module must load a js on all pages
+		//							'css' => array('/importreglement/css/importreglement.css.php'),	// Set this to relative path of css file if module has its own css file
+	 	//							'js' => array('/importreglement/js/importreglement.js'),          // Set this to relative path of js file if module must load a js on all pages
 		//							'hooks' => array('hookcontext1','hookcontext2')  	// Set here all hooks context managed by module
 		//							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
-		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@importpayment')) // Set here all workflow context managed by module
+		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@importreglement')) // Set here all workflow context managed by module
 		//                        );
 		$this->module_parts = array();
 
 		// Data directories to create when module is enabled.
-		// Example: this->dirs = array("/importpayment/temp");
+		// Example: this->dirs = array("/importreglement/temp");
 		$this->dirs = array();
 
-		// Config pages. Put here list of php page, stored into importpayment/admin directory, to use to setup module.
-		$this->config_page_url = array("importpayment_setup.php@importpayment");
+		// Config pages. Put here list of php page, stored into importreglement/admin directory, to use to setup module.
+		$this->config_page_url = array("importreglement_setup.php@importreglement");
 
 		// Dependencies
 		$this->hidden = false;			// A condition to hide module
@@ -106,7 +104,7 @@ class modImportPayment extends DolibarrModules
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
 		$this->phpmin = array(5,0);					// Minimum version of PHP required by module
 		$this->need_dolibarr_version = array(3,6);	// Minimum version of Dolibarr required by module
-		$this->langfiles = array("importpayment@importpayment");
+		$this->langfiles = array("importreglement@importreglement");
 
 		// Constants
 		// List of particular constants to add when module is enabled (key, 'chaine', value, desc, visible, 'current' or 'allentities', deleteonunactive)
@@ -114,14 +112,14 @@ class modImportPayment extends DolibarrModules
 		//                             1=>array('MYMODULE_MYNEWCONST2','chaine','myvalue','This is another constant to add',0, 'current', 1)
 		// );
 		$this->const = array(
-			array('IMPORTPAYMENT_DEFAULT_NB_INGORE','chaine','0','This is a constant to define the number of row should be ignored by an import', 1)
-			,array('IMPORTPAYMENT_DEFAULT_DELIMITER','chaine',',','This is a constant to define the delimiter to use to import', 1)
-			,array('IMPORTPAYMENT_DEFAULT_ENCLOSURE','chaine','"','This is a constant to define the enclosure to use to import', 1)
+			array('IMPORTREGLEMENT_DEFAULT_NB_INGORE','chaine','0','This is a constant to define the number of row should be ignored by an import', 1)
+			,array('IMPORTREGLEMENT_DEFAULT_DELIMITER','chaine',',','This is a constant to define the delimiter to use to import', 1)
+			,array('IMPORTREGLEMENT_DEFAULT_ENCLOSURE','chaine','"','This is a constant to define the enclosure to use to import', 1)
 		);
 
 		// Array to add new pages in new tabs
-		// Example: $this->tabs = array('objecttype:+tabname1:Title1:importpayment@importpayment:$user->rights->importpayment->read:/importpayment/mynewtab1.php?id=__ID__',  	// To add a new tab identified by code tabname1
-        //                              'objecttype:+tabname2:Title2:importpayment@importpayment:$user->rights->othermodule->read:/importpayment/mynewtab2.php?id=__ID__',  	// To add another new tab identified by code tabname2
+		// Example: $this->tabs = array('objecttype:+tabname1:Title1:importreglement@importreglement:$user->rights->importreglement->read:/importreglement/mynewtab1.php?id=__ID__',  	// To add a new tab identified by code tabname1
+        //                              'objecttype:+tabname2:Title2:importreglement@importreglement:$user->rights->othermodule->read:/importreglement/mynewtab2.php?id=__ID__',  	// To add another new tab identified by code tabname2
         //                              'objecttype:-tabname:NU:conditiontoremove');                                                     						// To remove an existing tab identified by code tabname
 		// where objecttype can be
 		// 'categories_x'	  to add a tab in category view (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
@@ -146,16 +144,16 @@ class modImportPayment extends DolibarrModules
         $this->tabs = array();
 
         // Dictionaries
-	    if (! isset($conf->importpayment->enabled))
+	    if (! isset($conf->importreglement->enabled))
         {
-        	$conf->importpayment=new stdClass();
-        	$conf->importpayment->enabled=0;
+        	$conf->importreglement=new stdClass();
+        	$conf->importreglement->enabled=0;
         }
 		$this->dictionaries=array();
         /* Example:
-        if (! isset($conf->importpayment->enabled)) $conf->importpayment->enabled=0;	// This is to avoid warnings
+        if (! isset($conf->importreglement->enabled)) $conf->importreglement->enabled=0;	// This is to avoid warnings
         $this->dictionaries=array(
-            'langs'=>'importpayment@importpayment',
+            'langs'=>'importreglement@importreglement',
             'tabname'=>array(MAIN_DB_PREFIX."table1",MAIN_DB_PREFIX."table2",MAIN_DB_PREFIX."table3"),		// List of tables we want to see into dictonnary editor
             'tablib'=>array("Table1","Table2","Table3"),													// Label of tables
             'tabsql'=>array('SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table1 as f','SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table2 as f','SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table3 as f'),	// Request to select fields
@@ -164,7 +162,7 @@ class modImportPayment extends DolibarrModules
             'tabfieldvalue'=>array("code,label","code,label","code,label"),																				// List of fields (list of fields to edit a record)
             'tabfieldinsert'=>array("code,label","code,label","code,label"),																			// List of fields (list of fields for insert)
             'tabrowid'=>array("rowid","rowid","rowid"),																									// Name of columns with primary key (try to always name it 'rowid')
-            'tabcond'=>array($conf->importpayment->enabled,$conf->importpayment->enabled,$conf->importpayment->enabled)												// Condition to show each dictionary
+            'tabcond'=>array($conf->importreglement->enabled,$conf->importreglement->enabled,$conf->importreglement->enabled)												// Condition to show each dictionary
         );
         */
 
@@ -179,7 +177,7 @@ class modImportPayment extends DolibarrModules
 		$r=0;
 
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
-		$this->rights[$r][1] = 'importpayment_right_to_import';	// Permission label
+		$this->rights[$r][1] = 'importreglement_right_to_import';	// Permission label
 		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
 		$this->rights[$r][4] = 'import';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
@@ -193,30 +191,30 @@ class modImportPayment extends DolibarrModules
 		$this->menu[$r]=array(
 			'fk_menu'=>'fk_mainmenu=accountancy',			                // Put 0 if this is a top menu
 			'type'=>'left',			                // This is a Top menu entry
-			'titre'=>$langs->trans('TopMenuImportPayment'),
+			'titre'=>$langs->trans('TopMenuImportReglement'),
 			'mainmenu'=>'accountancy',
-			'leftmenu'=>'importpayment_left',
-			'url'=>'/importpayment/card.php',
-			'langs'=>'importpayment@importpayment',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'leftmenu'=>'importreglement_left',
+			'url'=>'/importreglement/card.php',
+			'langs'=>'importreglement@importreglement',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
-			'enabled'=>'$conf->importpayment->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->facture->paiement && $user->rights->importpayment->import',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'enabled'=>'$conf->importreglement->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
+			'perms'=>'$user->rights->facture->paiement && $user->rights->importreglement->import',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>2
 		);
 		$r++;
 		
 		$this->menu[$r]=array(
-			'fk_menu'=>'fk_mainmenu=accountancy,fk_leftmenu=importpayment_left',			                // Put 0 if this is a top menu
+			'fk_menu'=>'fk_mainmenu=accountancy,fk_leftmenu=importreglement_left',			                // Put 0 if this is a top menu
 			'type'=>'left',			                // This is a Top menu entry
-			'titre'=>$langs->trans('LeftMenuImportPaymentCreate'),
+			'titre'=>$langs->trans('LeftMenuImportReglementCreate'),
 			'mainmenu'=>'accountancy',
-			'leftmenu'=>'importpayment_left_create',
-			'url'=>'/importpayment/card.php',
-			'langs'=>'importpayment@importpayment',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'leftmenu'=>'importreglement_left_create',
+			'url'=>'/importreglement/card.php',
+			'langs'=>'importreglement@importreglement',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
-			'enabled'=>'$conf->importpayment->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->facture->paiement && $user->rights->importpayment->import',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'enabled'=>'$conf->importreglement->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
+			'perms'=>'$user->rights->facture->paiement && $user->rights->importreglement->import',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>2
 		);
@@ -255,10 +253,10 @@ class modImportPayment extends DolibarrModules
 		
 		define('INC_FROM_DOLIBARR',true);
 
-		dol_include_once('/importpayment/config.php');
-		dol_include_once('/importpayment/script/create-maj-base.php');
+		dol_include_once('/importreglement/config.php');
+		dol_include_once('/importreglement/script/create-maj-base.php');
 
-		$result=$this->_load_tables('/importpayment/sql/');
+		$result=$this->_load_tables('/importreglement/sql/');
 
 		return $this->_init($sql, $options);
 	}
