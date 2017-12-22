@@ -120,7 +120,7 @@ switch ($action) {
 
 		if (empty($TError))
 		{
-			setEventMessages($langs->trans('ImportReglementSuccess'));
+			setEventMessage($langs->trans('ImportReglementSuccess'));
 			
 			$object->entity = $conf->entity;
 			$object->datep = $datep;
