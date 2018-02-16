@@ -171,7 +171,7 @@ class TImportReglement extends TObjetStd
 		return $TRes;
 	}
 
-	public static function setPayments(&$TData, &$TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, $simulation=false, $closepaidinvoices=0)
+	public static function setPayments(&$TData, &$TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, $simulation=false, $closepaidinvoices=0, $avoidalreadypaid=0, $donotimportdoublepayment=0)
 	{
 		global $db, $user, $langs;
 		require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
@@ -182,6 +182,7 @@ class TImportReglement extends TObjetStd
 		$TOrderFieldName = array_flip($TFieldOrder);
 
 		$db->begin();
+		$fac=new Facture($db);
 
 		foreach ($TData as $Tab)
 		{
@@ -189,6 +190,14 @@ class TImportReglement extends TObjetStd
 			{
 				$TError[] = $langs->transnoentities('ImportReglementFactureNotFound', strip_tags($Tab[$TOrderFieldName['ref_facture']]));
 				continue;
+			} else {
+				if ($avoidalreadypaid) {
+					$fac->fetch($Tab[$TOrderFieldName['ref_facture']]->id);
+					if ($fac->paye==1) {
+						continue;
+					}
+				}
+
 			}
 
 			// Creation of payment line
@@ -211,7 +220,12 @@ class TImportReglement extends TObjetStd
 
 			$paiement->note = preg_replace('/^\n/m', '', $paiement->note);
 
-			$result=$this->IsPaymentAlreadyExists($paiement);
+			if (!empty($donotimportdoublepayment)) {
+				$result=$this->IsPaymentAlreadyExists($paiement);
+			} else {
+				$result=0;
+			}
+
 			//No paiemnt found on the same date same amount same invoice
 			if ($result===0) {
 				$paiement_id = $paiement->create($user, $closepaidinvoices);
