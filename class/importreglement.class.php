@@ -14,33 +14,33 @@ class TImportReglement extends TObjetStd
 {
 	public $error='';
 	public $TError=array();
-	
+
 	public function __construct()
 	{
 		global $conf;
-		
+
 		parent::__construct();
-		
+
 		$this->set_table(MAIN_DB_PREFIX.'importreglement');
-		
+
 		$this->add_champs('entity,fk_user_author,fk_c_paiement,fk_bank_account', array('type' => 'integer'));
 		$this->add_champs('datep', array('type' => 'date'));
 		$this->add_champs('TFieldOrder,TDataCompressed', array('type' => 'text'));
-		
+
 		$this->_init_vars();
 		$this->start();
-		
+
 		$this->entity = $conf->entity;
 	}
-	
+
 	public function load(&$PDOdb,$id,$loadChild=true)
 	{
 		parent::load($PDOdb, $id, $loadChild);
-		
+
 		$this->TFieldOrder = unserialize($this->TFieldOrder);
 		$this->TDataCompressed = unserialize(gzuncompress(base64_decode($this->TDataCompressed)));
 	}
-	
+
 	public function parseFile($filename, $nb_ignore=0, $delimiter=';', $enclosure='"')
 	{
 		$handle = fopen($filename, 'r');
@@ -50,23 +50,23 @@ class TImportReglement extends TObjetStd
 			$this->TError[] = $this->error;
 			return array();
 		}
-		
+
 		// ligne(s) d'entête à ignorer
 		if ($nb_ignore > 0)
 		{
 			while ($nb_ignore--) fgets($handle);
 		}
-		
+
 		// TODO à voir si je conserve la fonction fgets() plutôt que fgetcsv()
 		$TData = array();
 		while ($line = fgets($handle))
 		{
 			$TData[] = array_map('trim', str_getcsv($this->force_utf8($line), $delimiter, $enclosure));
 		}
-		
+
 		return $TData;
 	}
-	
+
 	public static function getTFieldPossible()
 	{
 		return array_merge(self::getTFieldRequired(), self::getTFieldOptional());
@@ -75,7 +75,7 @@ class TImportReglement extends TObjetStd
 	public static function getTFieldRequired()
 	{
 		global $langs;
-		
+
 		return array(
 			'ref_facture' => $langs->transnoentities('InvoiceRef')
 			,'total_ttc' => $langs->transnoentities('PaymentAmount')
@@ -85,7 +85,7 @@ class TImportReglement extends TObjetStd
 	public static function getTFieldOptional()
 	{
 		global $langs;
-		
+
 		return array(
 			'ignored' => $langs->transnoentities('ImportReglementIgnoredLine')
 			,'num_paiement' => $langs->transnoentities('Numero').' <em>('.$langs->transnoentities("ChequeOrTransferNumber").')</em>'
@@ -99,16 +99,16 @@ class TImportReglement extends TObjetStd
 			,'datep' => $langs->transnoentities('PaymentDate') // TODO à ignorer si une date de paiement existe en param global
 		);
 	}
-	
+
 	public static function getTFieldOrder($withLabel=false)
 	{
 		global $conf;
-		
+
 		$TRes = array();
-		
+
 		if (!empty($conf->global->IMPORTREGLEMENT_TFIELD_ORDER)) $TRes = unserialize($conf->global->IMPORTREGLEMENT_TFIELD_ORDER);
 		else $TRes = self::getDefaultTFieldOrder();
-		
+
 		if ($withLabel)
 		{
 			$TLabel = self::getTFieldPossible();
@@ -117,7 +117,7 @@ class TImportReglement extends TObjetStd
 				$val = array('label' => $TLabel[$val], 'field' => $val);
 			}
 		}
-		
+
 		return $TRes;
 	}
 
@@ -132,20 +132,20 @@ class TImportReglement extends TObjetStd
 			,'comment1'
 		);
 	}
-	
+
 	public static function getFormatedData(&$TFieldOrder, $TLineIndex, $TData)
 	{
 		global $db;
 		require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
-		
+
 		$TRes = array();
-		
+
 		foreach ($TLineIndex as $i)
 		{
 			foreach ($TFieldOrder as $field_index => $field_name)
 			{
 				$value = $TData[$i][$field_index];
-				
+
 				switch ($field_name) {
 					case 'ref_facture':
 						$facture = new Facture($db);
@@ -155,19 +155,19 @@ class TImportReglement extends TObjetStd
 							$value = $facture;
 						}
 						else $value = '<span class="error">'.$value.'</span>';
-						
+
 						break;
-					
+
 					case 'total_ttc':
 						$value = preg_replace('/[^0-9,.]/', '', $value);
 						$value = price2num($value, 2);
 						break;
 				}
-				
+
 				$TRes[$i][] = $value;
 			}
 		}
-		
+
 		return $TRes;
 	}
 
@@ -177,12 +177,12 @@ class TImportReglement extends TObjetStd
 		require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 		require_once DOL_DOCUMENT_ROOT.'/compta/paiement/class/paiement.class.php';
 		require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
-		
+
 		$TError = array();
 		$TOrderFieldName = array_flip($TFieldOrder);
-		
+
 		$db->begin();
-		
+
 		foreach ($TData as $Tab)
 		{
 			if (empty($Tab[$TOrderFieldName['ref_facture']]->id))
@@ -190,10 +190,15 @@ class TImportReglement extends TObjetStd
 				$TError[] = $langs->transnoentities('ImportReglementFactureNotFound', strip_tags($Tab[$TOrderFieldName['ref_facture']]));
 				continue;
 			}
-			
+
 			// Creation of payment line
 			$paiement = new Paiement($db);
-			$paiement->datepaye = $datep;
+			//Use date paiement from file if exists
+			if (is_array($TOrderFieldName) && array_key_exists('datep', $TOrderFieldName) && !empty($Tab[$TOrderFieldName['datep']])) {
+				$paiement->datepaye = $Tab[$TOrderFieldName['datep']];
+			} else {
+				$paiement->datepaye = $datep;
+			}
 			$paiement->amounts = array($Tab[$TOrderFieldName['ref_facture']]->id => $Tab[$TOrderFieldName['total_ttc']]);   // Array with all payments dispatching with invoice id
 //			$paiement->multicurrency_amounts = array();   // Array with all payments dispatching
 			$paiement->paiementid = $fk_c_paiement; //dol_getIdFromCode($db,GETPOST('paiementcode'),'c_paiement');
@@ -204,30 +209,34 @@ class TImportReglement extends TObjetStd
 			$paiement->note .= $Tab[$TOrderFieldName['comment4']]."\n";
 
 			$paiement->note = preg_replace('/^\n/m', '', $paiement->note);
-			
-			$paiement_id = $paiement->create($user, $closepaidinvoices);
-			if ($paiement_id < 0)
-	        {
-	            $TError[] = $paiement->error;
-	        }
-			else
-			{
-				$label='(CustomerInvoicePayment)';
-				if ($Tab['ref_facture']->type == Facture::TYPE_CREDIT_NOTE) $label='(CustomerInvoicePaymentBack)';  // Refund of a credit note
-				$result=$paiement->addPaymentToBank($user, 'payment', $label, $fk_bank_account, $Tab[$TOrderFieldName['chqemetteur']], $Tab[$TOrderFieldName['chqbank']]);
-				if ($result < 0)
+
+			$result=$this->IsPaymentAlreadyExists($paiement);
+			//No paiemnt found on the same date same amount same invoice
+			if ($result===0) {
+				$paiement_id = $paiement->create($user, $closepaidinvoices);
+				if ($paiement_id < 0)
+		        {
+		            $TError[] = $paiement->error;
+		        }
+				else
 				{
-					$TError[] = $paiement->error;
-				}	
+					$label='(CustomerInvoicePayment)';
+					if ($Tab['ref_facture']->type == Facture::TYPE_CREDIT_NOTE) $label='(CustomerInvoicePaymentBack)';  // Refund of a credit note
+					$result=$paiement->addPaymentToBank($user, 'payment', $label, $fk_bank_account, $Tab[$TOrderFieldName['chqemetteur']], $Tab[$TOrderFieldName['chqbank']]);
+					if ($result < 0)
+					{
+						$TError[] = $paiement->error;
+					}
+				}
 			}
 		}
-		
+
 		if ($simulation) $db->rollback();
 		else $db->commit();
-		
+
 		return $TError;
 	}
-	
+
 	/**
 	 * Check for UTF-8 compatibility
 	 *
@@ -256,7 +265,7 @@ class TImportReglement extends TObjetStd
 	 *
 	 * @author Thomas Scholz <http://toscho.de>
 	 * @param string $str String to encode
-	 * @param string $inputEnc Maybe the source encoding. 
+	 * @param string $inputEnc Maybe the source encoding.
 	 *               Set to NULL if you are not sure. iconv() will fail then.
 	 * @return string
 	 */
@@ -279,6 +288,39 @@ class TImportReglement extends TObjetStd
 			'Cannot convert string to UTF-8 in file '
 			.__FILE__.', line '.__LINE__.'!', E_USER_WARNING
 		);
+	}
+
+	public function IsPaymentAlreadyExists(Paiement $payment){
+
+		global $db;
+
+		if (is_array($payment->amounts && count ($payment->amounts)>0)) {
+			foreach($payment->amounts as $facid=>$amount) {
+				$sql = 'SELECT p.rowid FROM '.MAIN_DB_PREFIX.$payment->tablename. ' as p ';
+				$sql .= ' INNER JOIN '. MAIN_DB_PREFIX.'paiement_facture as pf';
+				$sql .= ' ON pf.fk_paiement=p.rowid';
+				$sql .= ' WHERE p.datep=\''.$this->db->idate($payment->datepaye).'\'';
+				$sql .= ' AND pf.fk_facture='.$facid;
+				$sql .= ' AND pf.amount=\''.$amount.'\'';
+
+				dol_syslog(get_class($this).'::'.__METHOD__,LOG_DEBUG);
+				$resql = $db->query($sql);
+				if ($resql) {
+					$obj=$db->fetch_object($resql);
+					if (!empty($obj->rowid)) {
+						return $obj->rowid;
+					}
+				} else {
+					$this->TError[] = $db->lasterror;
+				}
+			}
+			if (!empty($this->TError)) {
+				return -1;
+			}
+		}
+
+		return 0;
+
 	}
 
 }
