@@ -42,6 +42,7 @@ Comment1=Commentaire 1
 Comment2=Commentaire 2
 Comment3=Commentaire 3
 Comment4=Commentaire 4
+ImportFromModuleImportReglement=Crée par l'import du module Import Réglement
 
 # CONFIGURATION
 IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT=Permet de redéfinir les configurations par défaut concernant le traitement du fichier via le formulaire d'import

@@ -207,6 +207,7 @@ class TImportReglement extends TObjetStd
 			$paiement->note .= $Tab[$TOrderFieldName['comment2']]."\n";
 			$paiement->note .= $Tab[$TOrderFieldName['comment3']]."\n";
 			$paiement->note .= $Tab[$TOrderFieldName['comment4']]."\n";
+			$paiement->note .= $langs->trans('ImportFromModuleImportReglement')."\n";
 
 			$paiement->note = preg_replace('/^\n/m', '', $paiement->note);
 

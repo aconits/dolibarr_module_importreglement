@@ -42,6 +42,7 @@ Comment1=Comment 1
 Comment2=Comment 2
 Comment3=Comment 3
 Comment4=Comment 4
+ImportFromModuleImportReglement=Created by module Import payments
 
 # CONFIGURATION
 IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT=Can redefine the default settings for processing the file via the import form
