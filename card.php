@@ -97,7 +97,7 @@ switch ($action) {
 
 		if (empty($error) && empty($TError))
 		{
-			_step3($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, array(), $avoidalreadypaid, $donotimportdoublepayment);
+			_step3($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, $avoidalreadypaid, $donotimportdoublepayment);
 		}
 		else
 		{
@@ -253,8 +253,8 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', htmlentities($enclosure))
 				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
 				,'showClosePaidInvoices' => yn((bool) $closepaidinvoices, 1, 2).$formcore->hidden('closepaidinvoices', $closepaidinvoices)
-					,'showAvoidAlreadyPaidInvoice' => yn((bool) $avoidalreadypaid, 1, 2).$formcore->hidden('closepaidinvoices', $avoidalreadypaid)
-					,'showDoNotImpotDoublePayment' => yn((bool) $donotimportdoublepayment, 1, 2).$formcore->hidden('closepaidinvoices', $donotimportdoublepayment)
+					,'showAvoidAlreadyPaidInvoice' => yn((bool) $avoidalreadypaid, 1, 2).$formcore->hidden('avoidalreadypaid', $avoidalreadypaid)
+					,'showDoNotImpotDoublePayment' => yn((bool) $donotimportdoublepayment, 1, 2).$formcore->hidden('donotimportdoublepayment', $donotimportdoublepayment)
 			)
 			,'langs' => $langs
 			,'conf' => $conf

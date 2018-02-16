@@ -162,6 +162,10 @@ class TImportReglement extends TObjetStd
 						$value = preg_replace('/[^0-9,.]/', '', $value);
 						$value = price2num($value, 2);
 						break;
+
+					case 'datep':
+						$value = strtotime($value);
+						break;
 				}
 
 				$TRes[$i][] = $value;
@@ -182,23 +186,21 @@ class TImportReglement extends TObjetStd
 		$TOrderFieldName = array_flip($TFieldOrder);
 
 		$db->begin();
-		$fac=new Facture($db);
-
 		foreach ($TData as $Tab)
 		{
 			if (empty($Tab[$TOrderFieldName['ref_facture']]->id))
 			{
 				$TError[] = $langs->transnoentities('ImportReglementFactureNotFound', strip_tags($Tab[$TOrderFieldName['ref_facture']]));
 				continue;
-			} else {
-				if ($avoidalreadypaid) {
-					$fac->fetch($Tab[$TOrderFieldName['ref_facture']]->id);
-					if ($fac->paye==1) {
-						continue;
-					}
-				}
-
+			} elseif ($avoidalreadypaid && $Tab[$TOrderFieldName['ref_facture']]->paye==1) {
+				//Do not import already paid invoice
+				continue;
 			}
+
+			if (empty($Tab[$TOrderFieldName['total_ttc']])) {
+				continue;
+			}
+
 
 			// Creation of payment line
 			$paiement = new Paiement($db);
@@ -221,12 +223,12 @@ class TImportReglement extends TObjetStd
 			$paiement->note = preg_replace('/^\n/m', '', $paiement->note);
 
 			if (!empty($donotimportdoublepayment)) {
-				$result=$this->IsPaymentAlreadyExists($paiement);
+				$result=self::IsPaymentAlreadyExists($paiement);
 			} else {
 				$result=0;
 			}
 
-			//No paiemnt found on the same date same amount same invoice
+			//No payment found on the same date same amount same invoice
 			if ($result===0) {
 				$paiement_id = $paiement->create($user, $closepaidinvoices);
 				if ($paiement_id < 0)
@@ -305,7 +307,7 @@ class TImportReglement extends TObjetStd
 		);
 	}
 
-	public function IsPaymentAlreadyExists(Paiement $payment){
+	public static function IsPaymentAlreadyExists(Paiement $payment){
 
 		global $db;
 
