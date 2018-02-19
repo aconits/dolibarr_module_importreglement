@@ -96,7 +96,7 @@ class TImportReglement extends TObjetStd
 			,'comment3' => $langs->transnoentities('Comment3')
 			,'comment4' => $langs->transnoentities('Comment4')
 			,'fk_soc' => $langs->transnoentities('Company') // TODO à ignorer si un fk_soc existe en param global
-			,'datep' => $langs->transnoentities('PaymentDate')
+			,'datep' => $langs->transnoentities('PaymentDate'). '(YYYY-MM-DD)'
 		);
 	}
 
