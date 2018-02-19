@@ -162,10 +162,6 @@ class TImportReglement extends TObjetStd
 						$value = preg_replace('/[^0-9,.]/', '', $value);
 						$value = price2num($value, 2);
 						break;
-
-					case 'datep':
-						$value = strtotime($value);
-						break;
 				}
 
 				$TRes[$i][] = $value;
@@ -207,7 +203,7 @@ class TImportReglement extends TObjetStd
 			$paiement = new Paiement($db);
 			//Use date paiement from file if exists
 			if (is_array($TOrderFieldName) && array_key_exists('datep', $TOrderFieldName) && !empty($Tab[$TOrderFieldName['datep']])) {
-				$paiement->datepaye = $Tab[$TOrderFieldName['datep']];
+				$paiement->datepaye = strtotime($Tab[$TOrderFieldName['datep']]);
 			} else {
 				$paiement->datepaye = $datep;
 			}
