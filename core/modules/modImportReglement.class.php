@@ -44,7 +44,7 @@ class modImportReglement extends DolibarrModules
 
 		$this->editor_name = 'ATM-Consulting';
 		$this->editor_url = 'https://www.atm-consulting.fr';
-		
+
 		// Id for module (must be unique).
 		// Use here a free id (See in Home -> System information -> Dolibarr for list of used modules id).
 		$this->numero = 104741; // 104000 to 104999 for ATM CONSULTING
@@ -59,7 +59,7 @@ class modImportReglement extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Description of module ImportReglement";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.0.1';
+		$this->version = '1.0.2';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		// Where to store the module in setup page (0=common,1=interface,2=others,3=very specific)
@@ -68,7 +68,7 @@ class modImportReglement extends DolibarrModules
 		// If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
 		$this->picto='importreglement@importreglement';
-		
+
 		// Defined all module parts (triggers, login, substitutions, menus, css, etc...)
 		// for default path (eg: /importreglement/core/xxxxx) (0=disable, 1=enable)
 		// for specific path of parts (eg: /importreglement/core/modules/barcode)
@@ -203,7 +203,7 @@ class modImportReglement extends DolibarrModules
 			'user'=>2
 		);
 		$r++;
-		
+
 		$this->menu[$r]=array(
 			'fk_menu'=>'fk_mainmenu=accountancy,fk_leftmenu=importreglement_left',			                // Put 0 if this is a top menu
 			'type'=>'left',			                // This is a Top menu entry
@@ -220,7 +220,7 @@ class modImportReglement extends DolibarrModules
 		);
 		$r++;
 
-		
+
 		// Exports
 		$r=1;
 
@@ -250,7 +250,7 @@ class modImportReglement extends DolibarrModules
 	function init($options='')
 	{
 		$sql = array();
-		
+
 		define('INC_FROM_DOLIBARR',true);
 
 		dol_include_once('/importreglement/config.php');
