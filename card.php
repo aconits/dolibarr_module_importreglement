@@ -21,7 +21,7 @@ $action = GETPOST('action');
 $step = GETPOST('step', 'int');
 
 if (empty($step)) $step = 1;
-	
+
 $object = new TImportReglement;
 
 $hookmanager->initHooks(array('importreglementcard', 'globalcard'));
@@ -41,11 +41,11 @@ switch ($action) {
 		$datep = dol_mktime(12, 0, 0, GETPOST('pmonth'), GETPOST('pday'), GETPOST('pyear'));
 		$fk_c_paiement = GETPOST('fk_c_paiement', 'int');
 		$fk_bank_account = GETPOST('fk_bank_account', 'int');
-		
+
 		if (empty($datep)) { $error++; setEventMessage($langs->trans('ImportReglementErrorDatePaymentEmpty'), 'errors'); }
 		if ($fk_c_paiement <= 0) { $error++; setEventMessage($langs->trans('ImportReglementErrorPaymentTypeEmpty'), 'errors'); }
 		if ($fk_bank_account <= 0) { $error++; setEventMessage($langs->trans('ImportReglementErrorBankAccountEmpty'), 'errors'); }
-		
+
 		$nb_ignore = GETPOST('nb_ignore', 'int');
 		if (empty($nb_ignore) && strcmp($nb_ignore, 0) !== 0) $nb_ignore = $conf->global->IMPORTREGLEMENT_DEFAULT_NB_INGORE;
 		$delimiter = GETPOST('delimiter');
@@ -60,19 +60,19 @@ switch ($action) {
 			$error++;
 			setEventMessage($langs->trans('ImportReglementFileError', $file['error']), 'errors');
 		}
-		
+
 		if (empty($error))
 		{
 			$TData = $object->parseFile($file['tmp_name'], $nb_ignore, $delimiter, $enclosure);
-			_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $file['name'], GETPOST('closepaidinvoices', 'int'));
+			_step2($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $file['name'], GETPOST('closepaidinvoices', 'int'), array(), GETPOST('avoid_already_paid','int'), GETPOST('do_not_import_double_payment','int'));
 		}
 		else
 		{
 			_step1($object);
 		}
-		
+
 		break;
-		
+
 	case 'gotostep3':
 		$datep = GETPOST('datep', 'int');
 		$fk_c_paiement = GETPOST('fk_c_paiement', 'int');
@@ -82,29 +82,31 @@ switch ($action) {
 		$enclosure = GETPOST('enclosure');
 		$filename = GETPOST('filename');
 		$closepaidinvoices= GETPOST('closepaidinvoices', 'int');
-		
+		$avoid_already_paid=GETPOST('avoid_already_paid','int');
+		$do_not_import_double_payment=GETPOST('do_not_import_double_payment','int');
+
 		$TFieldOrder = GETPOST('TField', 'array');
 		if (empty($TFieldOrder)) $TFieldOrder = TImportReglement::getTFieldOrder();
-		
+
 		// TODO remove static calls by standard methods
 		$TData = TImportReglement::getFormatedData($TFieldOrder, GETPOST('TLineIndex', 'array'), GETPOST('TData', 'array'));
 		if (!empty($TData))
 		{
-			$TError = TImportReglement::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, true, $closepaidinvoices);
+			$TError = TImportReglement::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, true, $closepaidinvoices, $avoid_already_paid, $do_not_import_double_payment);
 		}
-		
+
 		if (empty($error) && empty($TError))
 		{
-			_step3($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices);
+			_step3($object, $TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, $avoid_already_paid, $do_not_import_double_payment);
 		}
 		else
 		{
 			if (empty($TData)) setEventMessage($langs->trans('ImportReglementEmptyData'), 'warnings');
-			_step2($object, unserialize(gzuncompress(base64_decode(GETPOST('TDataCompressed')))), $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, $TError);
+			_step2($object, unserialize(gzuncompress(base64_decode(GETPOST('TDataCompressed')))), $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, $TError,$avoid_already_paid,$do_not_import_double_payment);
 		}
-		
+
 		break;
-	
+
 	case 'confirm_import':
 		$datep = GETPOST('datep');
 		$fk_c_paiement = GETPOST('fk_c_paiement');
@@ -112,16 +114,16 @@ switch ($action) {
 
 		$TFieldOrder = GETPOST('TField', 'array');
 		if (empty($TFieldOrder)) $TFieldOrder = TImportReglement::getTFieldOrder();
-		
+
 		$TData = GETPOST('TData', 'array');
 		$TData = TImportReglement::getFormatedData($TFieldOrder, array_keys($TData), $TData);
-		
-		$TError = TImportReglement::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, false, GETPOST('closepaidinvoices', 'int'));
+
+		$TError = TImportReglement::setPayments($TData, $TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, false, GETPOST('closepaidinvoices', 'int'), array(), GETPOST('avoid_already_paid','int'), GETPOST('do_not_import_double_payment','int'));
 
 		if (empty($TError))
 		{
-			setEventMessages($langs->trans('ImportReglementSuccess'));
-			
+			setEventMessage($langs->trans('ImportReglementSuccess'));
+
 			$object->entity = $conf->entity;
 			$object->datep = $datep;
 			$object->fk_user_author = $user->id;
@@ -129,16 +131,16 @@ switch ($action) {
 			$object->fk_bank_account = $fk_bank_account;
 			$object->TFieldOrder = serialize($TFieldOrder);
 			$object->TDataCompressed = base64_encode(gzcompress(serialize($TData)));
-				
+
 			$PDOdb = new TPDOdb;
 			$object->save($PDOdb);
 		}
 		else setEventMessages(null, $TError, 'errors');
-		
+
 		header('Location: '.dol_buildpath('/importreglement/card.php', 1));
 		exit;
 		break;
-	
+
 	default:
 		_step1($object);
 		break;
@@ -152,26 +154,26 @@ switch ($action) {
 function _step1(&$object)
 {
 	global $db,$langs,$conf;
-	
+
 	_header($object);
-	
+
 	$formcore = new TFormCore;
 	$formcore->Set_typeaff('edit');
-	
+
 	$form = new Form($db);
-	
+
 	$TBS=new TTemplateTBS();
 	$TBS->TBS->protect=false;
 	$TBS->TBS->noerr=true;
 
 	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importreglement', 'POST', true);
-	
+
 	$datep = dol_mktime(12, 0, 0, GETPOST('pmonth'), GETPOST('pday'), GETPOST('pyear'));
-	
+
 	ob_start();
 	$form->select_types_paiements(GETPOST('fk_c_paiement'), 'fk_c_paiement');
 	$selectPaymentMode = ob_get_clean();
-	
+
 	ob_start();
 	$form->select_comptes(GETPOST('fk_bank_account'), 'fk_bank_account');
 	$selectAccountToCredit = ob_get_clean();
@@ -195,38 +197,40 @@ function _step1(&$object)
 				,'showEnclosure' => (!empty($conf->global->IMPORTREGLEMENT_ALLOW_OVERRIDE_CONF_ON_IMPORT)) ? $formcore->texte('', 'enclosure', htmlentities((GETPOST('enclosure') !== '' ? GETPOST('enclosure') : $conf->global->IMPORTREGLEMENT_DEFAULT_ENCLOSURE)), 5) : htmlentities($conf->global->IMPORTREGLEMENT_DEFAULT_ENCLOSURE)
 				,'showInputAccountToCredit' => $selectAccountToCredit
 				,'showClosePaidInvoices' => $formcore->checkbox1('', 'closepaidinvoices', 1, (GETPOST('closepaidinvoices', 'int') == 1 ? true : false))
+				,'showAvoidAlreadyPaidInvoice' => $formcore->checkbox1('', 'avoid_already_paid', 1, (GETPOST('avoid_already_paid', 'int') == 1 ? true : false))
+				,'showDoNotImpotDoublePayment' => $formcore->checkbox1('', 'do_not_import_double_payment', 1, (GETPOST('do_not_import_double_payment', 'int') == 1 ? true : false))
 			)
 			,'langs' => $langs
 			,'TDataCompressed' => ''
 		)
 	);
- 
+
 	echo $formcore->end_form();
-	
+
 	_footer();
 }
 
-function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, $TError=array())
+function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, $TError=array(), $avoid_already_paid, $do_not_import_double_payment)
 {
 	global $db,$langs,$conf;
-	
+
 	_header($object);
-	
+
 	$TBS=new TTemplateTBS();
 	$TBS->TBS->protect=false;
 	$TBS->TBS->noerr=true;
-	
+
 	$form = new Form($db);
 	$form->load_cache_types_paiements();
-	
+
 	$formcore = new TFormCore;
 	$formcore->Set_typeaff('edit');
-	
+
 	$account = new Account($db);
 	$account->fetch($fk_bank_account);
-	
+
 	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importreglement', 'POST', true);
-	
+
 	$TFieldOrder = TImportReglement::getTFieldOrder(true);
 	print $TBS->render('tpl/card.tpl.php'
 		,array(
@@ -249,39 +253,40 @@ function _step2(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', htmlentities($enclosure))
 				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
 				,'showClosePaidInvoices' => yn((bool) $closepaidinvoices, 1, 2).$formcore->hidden('closepaidinvoices', $closepaidinvoices)
+				,'showAvoidAlreadyPaidInvoice' => yn((bool) $avoid_already_paid, 1, 2).$formcore->hidden('avoid_already_paid', $avoid_already_paid)
+				,'showDoNotImpotDoublePayment' => yn((bool) $do_not_import_double_payment, 1, 2).$formcore->hidden('do_not_import_double_payment', $do_not_import_double_payment)
 			)
 			,'langs' => $langs
 			,'conf' => $conf
 			,'TDataCompressed' => base64_encode(gzcompress(serialize($TData)))
 		)
 	);
-	
+
 	echo $formcore->end_form();
-	
+
 	_footer();
 }
 
-function _step3(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices)
+function _step3(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb_ignore, $delimiter, $enclosure, $filename, $closepaidinvoices, $avoid_already_paid, $do_not_import_double_payment)
 {
 	global $db,$langs,$conf;
-	
+
 	_header($object);
-	
+
 	$TBS=new TTemplateTBS();
 	$TBS->TBS->protect=false;
 	$TBS->TBS->noerr=true;
-	
+
 	$form = new Form($db);
 	$form->load_cache_types_paiements();
-	
+
 	$formcore = new TFormCore;
 	$formcore->Set_typeaff('edit');
-	
+
 	$account = new Account($db);
 	$account->fetch($fk_bank_account);
-	
+
 	echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_importreglement', 'POST', true);
-	
 	$TFieldOrder = TImportReglement::getTFieldOrder(true);
 	print $TBS->render('tpl/card.tpl.php'
 		,array(
@@ -304,22 +309,24 @@ function _step3(&$object, &$TData, $datep, $fk_c_paiement, $fk_bank_account, $nb
 				,'showEnclosure' => $enclosure.' '.$formcore->hidden('enclosure', htmlentities($enclosure))
 				,'showInputAccountToCredit' => $account->label.' '.$formcore->hidden('fk_bank_account', $fk_bank_account)
 				,'showClosePaidInvoices' => yn((bool) $closepaidinvoices, 1, 2).$formcore->hidden('closepaidinvoices', $closepaidinvoices)
+				,'showAvoidAlreadyPaidInvoice' => yn((bool) $avoid_already_paid, 1, 2).$formcore->hidden('avoid_already_paid', $avoid_already_paid)
+				,'showDoNotImpotDoublePayment' => yn((bool) $do_not_import_double_payment, 1, 2).$formcore->hidden('do_not_import_double_payment', $do_not_import_double_payment)
 			)
 			,'langs' => $langs
 			,'conf' => $conf
 			,'TDataCompressed' => ''
 		)
 	);
-	
+
 	echo $formcore->end_form();
-	
+
 	_footer();
 }
 
 function _header(&$object)
 {
 	global $langs;
-	
+
 	$title=$langs->trans("ImportReglement");
 	llxHeader('',$title);
 
@@ -331,7 +338,7 @@ function _header(&$object)
 function _footer()
 {
 	global $db;
-	
+
 	llxFooter();
 	$db->close();
 }
@@ -339,7 +346,7 @@ function _footer()
 function getValue($FieldName, &$CurrVal, &$CurrPrm, &$TBS)
 {
 	global $langs;
-	
+
 	if (is_object($CurrVal) && get_class($CurrVal) === 'Facture')
 	{
 		$facture = $CurrVal;
@@ -350,13 +357,13 @@ function getValue($FieldName, &$CurrVal, &$CurrPrm, &$TBS)
 			$CurrVal.= '<br /><b class="'.($remainToPay <= 0 ? 'error' : 'ok').'">'.price($remainToPay, 0, $langs).'</b>';
 		}
 	}
-	
+
 	return $CurrVal;
 }
 
 function getSanitizedValue($FieldName, &$CurrVal, &$CurrPrm, &$TBS)
 {
 	if (is_object($CurrVal) && get_class($CurrVal) === 'Facture') $CurrVal = $CurrVal->ref;
-	
+
 	return $CurrVal;
 }

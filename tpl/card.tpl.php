@@ -3,13 +3,13 @@
 	<input type="hidden" name="action" value="[view.action]" />
 	<input type="hidden" name="step" value="[view.step]" />
 	<textarea name="TDataCompressed" style="display:none;">[TDataCompressed]</textarea>
-	
+
 	[TError;block=begin]
 	<div class="warning error">
 		<p>[langs.transnoentities([TError.val;noerr]);strconv=no]</p>
 	</div>
 	[TError;block=end]
-	
+
 	<div class="fichecenter">
 		<table width="100%" class="border tableforfield">
 			<tbody>
@@ -36,14 +36,17 @@
 					<td width="45%">[view.showInputAccountToCredit;strconv=no]</td>
 					<td width="15%"><span class="">[langs.transnoentities(ClosePaidInvoices)]</span></td>
 					<td width="25%">[view.showClosePaidInvoices;strconv=no]</td>
-					
-					
-					
+				</tr>
+				<tr class="fk_Specialtreatment">
+					<td width="15%"><span class="">[langs.transnoentities(AvoidAlreadyPaidInvoice)]</span></td>
+					<td width="45%">[view.showAvoidAlreadyPaidInvoice;strconv=no]</td>
+					<td width="15%"><span class="">[langs.transnoentities(DoNotDoublePaiement)]</span></td>
+					<td width="25%">[view.showDoNotImpotDoublePayment;strconv=no]</td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
-	
+
 	[onshow;block=begin;when [TData.#]+-0]
 	<br />
 	<div class="underbanner clearboth"></div>
@@ -56,7 +59,7 @@
 				[onshow;block=begin;when [view.step]==2]
 					<th><input type="checkbox" title="[langs.transnoentities(ImportReglementCheckboxToImport)]" onclick="$('.TLineIndex').prop('checked', $(this).is(':checked'));" /></th>
 				[onshow;block=end]
-				
+
 				<th class="[TFieldOrder.field;block=th]">
 					[onshow;block=begin;when [conf.global.IMPORTREGLEMENT_REORDER_ALLOWED;noerr]==1]
 						<input type="hidden" name="TField[]" value="[TFieldOrder.field]" />
@@ -89,7 +92,7 @@
 		</tbody>
 	</table>
 	[onshow;block=end]
-	
+
 
 </div> <!-- Fin div de la fonction dol_fiche_head() -->
 
