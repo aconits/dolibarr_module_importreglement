@@ -96,7 +96,7 @@ class TImportReglement extends TObjetStd
 			,'comment3' => $langs->transnoentities('Comment3')
 			,'comment4' => $langs->transnoentities('Comment4')
 			,'fk_soc' => $langs->transnoentities('Company') // TODO à ignorer si un fk_soc existe en param global
-			,'datep' => $langs->transnoentities('PaymentDate') // TODO à ignorer si une date de paiement existe en param global
+			,'datep' => $langs->transnoentities('PaymentDate')
 		);
 	}
 
@@ -175,7 +175,7 @@ class TImportReglement extends TObjetStd
 		return $TRes;
 	}
 
-	public static function setPayments(&$TData, &$TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, $simulation=false, $closepaidinvoices=0, $avoidalreadypaid=0, $donotimportdoublepayment=0)
+	public static function setPayments(&$TData, &$TFieldOrder, $datep, $fk_c_paiement, $fk_bank_account, $simulation=false, $closepaidinvoices=0, $avoid_already_paid=0, $do_not_import_double_payment=0)
 	{
 		global $db, $user, $langs;
 		require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
@@ -186,21 +186,22 @@ class TImportReglement extends TObjetStd
 		$TOrderFieldName = array_flip($TFieldOrder);
 
 		$db->begin();
-		foreach ($TData as $Tab)
+		foreach ($TData as $key=>$Tab)
 		{
 			if (empty($Tab[$TOrderFieldName['ref_facture']]->id))
 			{
 				$TError[] = $langs->transnoentities('ImportReglementFactureNotFound', strip_tags($Tab[$TOrderFieldName['ref_facture']]));
 				continue;
-			} elseif ($avoidalreadypaid && $Tab[$TOrderFieldName['ref_facture']]->paye==1) {
+			} elseif ($avoid_already_paid && $Tab[$TOrderFieldName['ref_facture']]->getRemainToPay()<=0) {
 				//Do not import already paid invoice
+				unset($TData[$key]);
 				continue;
 			}
 
 			if (empty($Tab[$TOrderFieldName['total_ttc']])) {
 				continue;
+				unset($TData[$key]);
 			}
-
 
 			// Creation of payment line
 			$paiement = new Paiement($db);
@@ -210,19 +211,19 @@ class TImportReglement extends TObjetStd
 			} else {
 				$paiement->datepaye = $datep;
 			}
+
 			$paiement->amounts = array($Tab[$TOrderFieldName['ref_facture']]->id => $Tab[$TOrderFieldName['total_ttc']]);   // Array with all payments dispatching with invoice id
-//			$paiement->multicurrency_amounts = array();   // Array with all payments dispatching
 			$paiement->paiementid = $fk_c_paiement; //dol_getIdFromCode($db,GETPOST('paiementcode'),'c_paiement');
 			$paiement->num_paiement = $Tab[$TOrderFieldName['num_paiement']];
 			$paiement->note = $Tab[$TOrderFieldName['comment1']]."\n";
 			$paiement->note .= $Tab[$TOrderFieldName['comment2']]."\n";
 			$paiement->note .= $Tab[$TOrderFieldName['comment3']]."\n";
 			$paiement->note .= $Tab[$TOrderFieldName['comment4']]."\n";
-			$paiement->note .= $langs->trans('ImportFromModuleImportReglement')."\n";
+			$paiement->note .= $langs->trans('ImportFromModuleImportReglement').'-'.dol_print_date($datep)."\n";
 
 			$paiement->note = preg_replace('/^\n/m', '', $paiement->note);
 
-			if (!empty($donotimportdoublepayment)) {
+			if (!empty($do_not_import_double_payment)) {
 				$result=self::IsPaymentAlreadyExists($paiement);
 			} else {
 				$result=0;
@@ -245,6 +246,8 @@ class TImportReglement extends TObjetStd
 						$TError[] = $paiement->error;
 					}
 				}
+			} else {
+				unset($TData[$key]);
 			}
 		}
 

@@ -37,7 +37,7 @@
 					<td width="15%"><span class="">[langs.transnoentities(ClosePaidInvoices)]</span></td>
 					<td width="25%">[view.showClosePaidInvoices;strconv=no]</td>
 				</tr>
-				<tr class="fk_bank_account">
+				<tr class="fk_Specialtreatment">
 					<td width="15%"><span class="">[langs.transnoentities(AvoidAlreadyPaidInvoice)]</span></td>
 					<td width="45%">[view.showAvoidAlreadyPaidInvoice;strconv=no]</td>
 					<td width="15%"><span class="">[langs.transnoentities(DoNotDoublePaiement)]</span></td>
